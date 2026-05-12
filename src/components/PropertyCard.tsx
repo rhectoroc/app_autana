@@ -4,7 +4,7 @@ import { Pagination, Navigation, EffectFade } from 'swiper/modules';
 import { Bed, Bath, Car, Maximize, MapPin, Play } from 'lucide-react';
 import type { Property } from '../types/property';
 import { formatCurrency, formatArea } from '../utils/format';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import 'swiper/css';
 import 'swiper/css/pagination';
