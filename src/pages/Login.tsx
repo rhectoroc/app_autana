@@ -16,11 +16,17 @@ export const Login = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            console.log('Attempting login for:', email);
             const res = await api.post('/auth/login', { email, password });
             login(res.data.token);
             navigate('/admin/dashboard');
-        } catch (err) {
-            setError('Invalid credentials');
+        } catch (err: any) {
+            console.error('Login Error Details:', {
+                status: err.response?.status,
+                data: err.response?.data,
+                message: err.message
+            });
+            setError(err.response?.data?.message || 'Invalid credentials');
         }
     };
 
