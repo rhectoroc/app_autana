@@ -32,6 +32,8 @@ export const CreateProperty = () => {
     const [previews, setPreviews] = useState<string[]>([]);
     const [mainImageIndex, setMainImageIndex] = useState(0);
     const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const [isDragging, setIsDragging] = useState(false);
 
     const handleFeaturesKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && featureInput.trim()) {
@@ -115,7 +117,13 @@ export const CreateProperty = () => {
 
         try {
             await api.post('/properties', data, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                        setUploadProgress(percentCompleted);
+                    }
+                }
             });
             navigate('/admin/dashboard');
         } catch (err) {
@@ -291,7 +299,19 @@ export const CreateProperty = () => {
                             {/* Image Upload */}
                             <div>
                                 <label className="block text-gray-300 mb-2">Images (Max 12 - Drag to Upload)</label>
-                                <div className="border-2 border-dashed border-neutral-600 rounded-lg p-8 text-center hover:border-[#D4AF37] transition-colors relative">
+                                <div 
+                                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                                    onDragLeave={() => setIsDragging(false)}
+                                    onDrop={async (e) => {
+                                        e.preventDefault();
+                                        setIsDragging(false);
+                                        if (e.dataTransfer.files) {
+                                            const event = { target: { files: e.dataTransfer.files } } as any;
+                                            handleImageChange(event);
+                                        }
+                                    }}
+                                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all relative ${isDragging ? 'border-[#D4AF37] bg-[#D4AF37]/10 scale-[1.02]' : 'border-neutral-600 hover:border-[#D4AF37]'}`}
+                                >
                                     <input
                                         type="file"
                                         multiple
@@ -299,8 +319,10 @@ export const CreateProperty = () => {
                                         onChange={handleImageChange}
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                     />
-                                    <Upload className="w-10 h-10 text-gray-400 mx-auto mb-3" />
-                                    <p className="text-gray-400">Click or drag images here</p>
+                                    <Upload className={`w-10 h-10 mx-auto mb-3 transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-400'}`} />
+                                    <p className={isDragging ? 'text-[#D4AF37]' : 'text-gray-400'}>
+                                        {isDragging ? 'Drop images now!' : 'Click or drag images here'}
+                                    </p>
                                     <p className="text-xs text-gray-500 mt-2">Images are automatically optimized</p>
                                 </div>
 
@@ -359,12 +381,26 @@ export const CreateProperty = () => {
                             </div>
 
                             <div className="pt-6 border-t border-neutral-700">
+                                {loading && (
+                                    <div className="mb-4">
+                                        <div className="flex justify-between text-sm mb-1">
+                                            <span className="text-[#D4AF37]">Uploading...</span>
+                                            <span className="text-gray-400">{uploadProgress}%</span>
+                                        </div>
+                                        <div className="w-full bg-neutral-700 rounded-full h-2">
+                                            <div 
+                                                className="bg-[#D4AF37] h-2 rounded-full transition-all duration-300" 
+                                                style={{ width: `${uploadProgress}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                                 <button
                                     type="submit"
                                     disabled={loading}
                                     className={`w-full bg-[#D4AF37] text-black font-bold py-4 rounded hover:bg-[#E5C158] transition-colors ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                    {loading ? 'Creating Property...' : 'Create Property'}
+                                    {loading ? 'Processing...' : 'Create Property'}
                                 </button>
                             </div>
                         </form>

@@ -38,7 +38,7 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
             const imageFiles = files.images;
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
-                const { filename } = await processImage(file.path, file.originalname);
+                const { filename } = await processImage(file.path, file.originalname, i + 1);
                 const isMain = i === 0;
                 await client.query(
                     `INSERT INTO images (property_id, image_url, is_main) VALUES ($1, $2, $3)`,
@@ -224,7 +224,8 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
 
         // Delete files from filesystem
         deletedImgs.rows.forEach((img: any) => {
-            const filePath = path.join(process.cwd(), img.image_url);
+            const relativePath = img.image_url.startsWith('/') ? img.image_url.substring(1) : img.image_url;
+            const filePath = path.join(process.cwd(), relativePath);
             if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         });
         // If existingImages is NOT sent or empty string? Be careful not to delete all if not intended. 
@@ -233,8 +234,9 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
 
         if (files && files.images) {
             const imageFiles = files.images;
-            for (const file of imageFiles) {
-                const { filename } = await processImage(file.path, file.originalname);
+            for (let i = 0; i < imageFiles.length; i++) {
+                const file = imageFiles[i];
+                const { filename } = await processImage(file.path, file.originalname, i + 1);
                 await client.query(
                     `INSERT INTO images (property_id, image_url, is_main) VALUES ($1, $2, $3)`,
                     [id, `/uploads/${filename}`, false]
@@ -268,7 +270,8 @@ export const deleteProperty = async (req: Request, res: Response): Promise<void>
 
         // Delete files from filesystem
         imgResult.rows.forEach((img: any) => {
-            const filePath = path.join(process.cwd(), img.image_url);
+            const relativePath = img.image_url.startsWith('/') ? img.image_url.substring(1) : img.image_url;
+            const filePath = path.join(process.cwd(), relativePath);
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
