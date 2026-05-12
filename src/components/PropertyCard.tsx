@@ -18,36 +18,10 @@ interface PropertyCardProps {
 }
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
+    const [isFlipped, setIsFlipped] = useState(false);
     const [isPlaying, setIsPlaying] = useState<string | number | null>(null);
     const { t } = useTranslation();
 
-    // 3D Hover Effect Logic
-    const x = useMotionValue(0);
-    const y = useMotionValue(0);
-
-    const springConfig = { stiffness: 100, damping: 30, mass: 0.5 };
-    const mouseXSpring = useSpring(x, springConfig);
-    const mouseYSpring = useSpring(y, springConfig);
-
-    const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
-    const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const width = rect.width;
-        const height = rect.height;
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-        const xPct = mouseX / width - 0.5;
-        const yPct = mouseY / height - 0.5;
-        x.set(xPct);
-        y.set(yPct);
-    };
-
-    const handleMouseLeave = () => {
-        x.set(0);
-        y.set(0);
-    };
 
     const getTypeLabel = (type: Property['type']) => {
         switch (type) {
@@ -66,22 +40,18 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
     };
 
     return (
-        <motion.div
-            className="group relative bg-white rounded-xl overflow-hidden shadow-sm transition-all duration-300 border border-transparent hover:border-gold-400/50"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{
-                rotateX,
-                rotateY,
-                transformStyle: "preserve-3d",
-            }}
-            initial={{ scale: 1, zIndex: 0 }}
-            whileHover={{
-                scale: 1.05,
-                zIndex: 50,
-                boxShadow: "0px 20px 40px rgba(0,0,0,0.2)"
-            }}
+        <div 
+            className="group relative h-[450px] w-full [perspective:1000px]"
+            onMouseEnter={() => setIsFlipped(true)}
+            onMouseLeave={() => setIsFlipped(false)}
         >
+            <motion.div
+                className="relative w-full h-full transition-all duration-500 [transform-style:preserve-3d]"
+                animate={{ rotateY: isFlipped ? 180 : 0 }}
+                transition={{ duration: 0.6, type: "spring", stiffness: 260, damping: 20 }}
+            >
+                {/* FRONT FACE */}
+                <div className="absolute inset-0 w-full h-full [backface-visibility:hidden] bg-white rounded-xl overflow-hidden shadow-lg border border-neutral-100 flex flex-col">
             {/* Media Carousel */}
             <div className="relative h-64 w-full bg-gray-100">
                 <Swiper
@@ -197,7 +167,51 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                         <span className="text-xs text-gray-600 truncate w-full">{property.parking_spots || 0} {t.properties.details.parking}</span>
                     </div>
                 </div>
-            </div>
-        </motion.div>
+                    </div>
+                </div>
+
+                {/* BACK FACE */}
+                <div 
+                    className="absolute inset-0 w-full h-full [backface-visibility:hidden] [transform:rotateY(180deg)] bg-neutral-900 rounded-xl p-6 shadow-2xl border-2 border-[#D4AF37]/30 flex flex-col justify-between overflow-hidden"
+                    onClick={onClick}
+                >
+                    <div className="relative z-10">
+                        <div className="flex items-center justify-between mb-4">
+                            <span className="text-[#D4AF37] font-serif text-lg font-bold">{formatCurrency(property.price)}</span>
+                            <span className="bg-[#D4AF37]/10 text-[#D4AF37] text-[10px] px-2 py-1 rounded-full uppercase tracking-widest border border-[#D4AF37]/20">
+                                {getTypeLabel(property.type)}
+                            </span>
+                        </div>
+                        
+                        <h4 className="text-white font-serif text-xl mb-3">{property.title}</h4>
+                        <p className="text-gray-400 text-sm line-clamp-4 mb-6 italic leading-relaxed">
+                            "{property.description}"
+                        </p>
+
+                        <div className="space-y-3">
+                            <p className="text-[#D4AF37] text-[10px] uppercase tracking-[0.2em] font-bold">Key Features</p>
+                            <div className="flex flex-wrap gap-2">
+                                {property.amenities?.slice(0, 4).map((feat, i) => (
+                                    <span key={i} className="bg-white/5 text-gray-300 text-[10px] px-2 py-1 rounded border border-white/10 italic">
+                                        {feat}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="relative z-10 mt-auto">
+                        <button className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-black font-bold py-3 rounded-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 group/btn shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                            View Details
+                            <Maximize className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
+                        </button>
+                    </div>
+
+                    {/* Decorative Background Pattern */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4AF37]/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+                    <div className="absolute bottom-0 left-0 w-24 h-24 bg-[#D4AF37]/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+                </div>
+            </motion.div>
+        </div>
     );
 };
