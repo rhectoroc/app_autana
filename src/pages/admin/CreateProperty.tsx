@@ -31,6 +31,7 @@ export const CreateProperty = () => {
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
     const [mainImageIndex, setMainImageIndex] = useState(0);
+    const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
 
     const handleFeaturesKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && featureInput.trim()) {
@@ -107,6 +108,10 @@ export const CreateProperty = () => {
         sortedImages.forEach((file) => {
             data.append('images', file);
         });
+
+        if (selectedVideo) {
+            data.append('video', selectedVideo);
+        }
 
         try {
             await api.post('/properties', data, {
@@ -325,6 +330,31 @@ export const CreateProperty = () => {
                                             </div>
                                         ))}
                                     </div>
+                                )}
+                            </div>
+
+                            {/* Video Upload */}
+                            <div className="mt-8">
+                                <label className="block text-gray-300 mb-2">Video (Optional - Max 1)</label>
+                                <div className="border-2 border-dashed border-neutral-600 rounded-lg p-6 text-center hover:border-[#D4AF37] transition-colors relative">
+                                    <input
+                                        type="file"
+                                        accept="video/*"
+                                        onChange={e => setSelectedVideo(e.target.files?.[0] || null)}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    <p className="text-gray-400">
+                                        {selectedVideo ? `Selected: ${selectedVideo.name}` : 'Click to upload video'}
+                                    </p>
+                                </div>
+                                {selectedVideo && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => setSelectedVideo(null)}
+                                        className="mt-2 text-red-500 text-sm hover:underline"
+                                    >
+                                        Remove video
+                                    </button>
                                 )}
                             </div>
 

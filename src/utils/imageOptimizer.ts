@@ -61,15 +61,15 @@ export const compressImage = async (file: File, maxWidth = 1920, quality = 0.8):
                             reject(new Error('Canvas to Blob conversion failed'));
                             return;
                         }
-                        // Always save as jpg
-                        const newName = file.name.replace(/\.[^/.]+$/, "") + ".jpg";
+                        // Always save as webp
+                        const newName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
                         const newFile = new File([blob], newName, {
-                            type: 'image/jpeg',
+                            type: 'image/webp',
                             lastModified: Date.now(),
                         });
                         resolve(newFile);
                     },
-                    'image/jpeg',
+                    'image/webp',
                     quality
                 );
             };
