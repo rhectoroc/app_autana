@@ -34,6 +34,7 @@ export const CreateProperty = () => {
     const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const handleFeaturesKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' && featureInput.trim()) {
@@ -58,6 +59,7 @@ export const CreateProperty = () => {
             }
 
             try {
+                setIsProcessing(true);
                 // Optimization step
                 const optimizedFiles = await Promise.all(
                     files.map(file => compressImage(file))
@@ -72,6 +74,8 @@ export const CreateProperty = () => {
             } catch (error) {
                 console.error('Image processing failed', error);
                 alert('Failed to process some images.');
+            } finally {
+                setIsProcessing(false);
             }
         }
     };
@@ -324,13 +328,23 @@ export const CreateProperty = () => {
                                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
                                     <div className="relative z-0">
-                                        <div className={`w-16 h-16 rounded-full bg-[#D4AF37]/10 flex items-center justify-center mx-auto mb-4 transition-transform duration-500 ${isDragging ? 'scale-110' : 'group-hover:scale-110'}`}>
-                                            <Upload className={`w-8 h-8 transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-400 group-hover:text-[#D4AF37]'}`} />
-                                        </div>
-                                        <p className={`text-lg font-medium transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
-                                            {isDragging ? 'Release to upload' : 'Drag images here'}
-                                        </p>
-                                        <p className="text-sm text-gray-500 mt-1">or click to browse from your device</p>
+                                        {isProcessing ? (
+                                            <div className="flex flex-col items-center">
+                                                <div className="w-16 h-16 rounded-full border-4 border-t-[#D4AF37] border-white/10 animate-spin mb-4"></div>
+                                                <p className="text-lg font-medium text-[#D4AF37] animate-pulse">Optimizing images...</p>
+                                                <p className="text-sm text-gray-500 mt-1">Applying luxury standards to your media</p>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <div className={`w-16 h-16 rounded-full bg-[#D4AF37]/10 flex items-center justify-center mx-auto mb-4 transition-transform duration-500 ${isDragging ? 'scale-110' : 'group-hover:scale-110'}`}>
+                                                    <Upload className={`w-8 h-8 transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-400 group-hover:text-[#D4AF37]'}`} />
+                                                </div>
+                                                <p className={`text-lg font-medium transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
+                                                    {isDragging ? 'Release to upload' : 'Drag images here'}
+                                                </p>
+                                                <p className="text-sm text-gray-500 mt-1">or click to browse from your device</p>
+                                            </>
+                                        )}
                                     </div>
                                     
                                     {/* Subtle decorative background gradient */}
