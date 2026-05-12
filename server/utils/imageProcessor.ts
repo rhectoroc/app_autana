@@ -23,7 +23,7 @@ export const processImage = async (inputPath: string, originalName: string): Pro
 
     try {
         let pipeline = sharp(inputPath)
-            .resize({ width: 1920, height: 1080, fit: 'inside', transformThrough: true, withoutEnlargement: true })
+            .resize({ width: 1920, height: 1080, fit: 'inside', withoutEnlargement: true })
             .webp({ quality: 80, effort: 6 });
 
         // Check if watermark exists before attempting to composite
