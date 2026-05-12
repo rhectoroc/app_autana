@@ -196,12 +196,13 @@ export const EditProperty = () => {
                     Back to Dashboard
                 </button>
 
-                <h1 className="text-3xl font-serif text-[#D4AF37] mb-8">Edit Property</h1>
+                <h1 className="text-4xl font-serif text-[#D4AF37] mb-2 tracking-tight">Edit Property</h1>
+                <p className="text-gray-400 mb-10">Update the details of your listed estate</p>
 
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-10">
                     {/* LEFT COLUMN: FORM */}
                     <div className="xl:col-span-2">
-                        <form onSubmit={handleSubmit} className="space-y-8 bg-neutral-800/50 p-4 md:p-8 rounded-xl border border-neutral-700">
+                        <form onSubmit={handleSubmit} className="space-y-10 bg-white/5 backdrop-blur-xl p-6 md:p-10 rounded-3xl border border-white/10 shadow-2xl">
                             {/* Basic Info */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
@@ -290,13 +291,13 @@ export const EditProperty = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Parking Spots</label>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37] mb-2">Parking</label>
                                     <input
                                         type="number"
                                         required
                                         value={formData.parking_spots}
                                         onChange={e => setFormData({ ...formData, parking_spots: e.target.value })}
-                                        className="w-full bg-neutral-900 border border-neutral-700 rounded p-3 focus:border-[#D4AF37] focus:outline-none"
+                                        className="w-full bg-black/40 border border-white/10 rounded-xl p-4 focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37] transition-all outline-none"
                                     />
                                 </div>
                             </div>
@@ -331,10 +332,9 @@ export const EditProperty = () => {
                                     ))}
                                 </div>
                             </div>
-
-                            {/* Image Upload */}
-                            <div>
-                                <label className="block text-gray-300 mb-2">Images (Max 12 - Drag to Upload)</label>
+                             {/* Image Upload */}
+                            <div className="space-y-4">
+                                <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 12)</label>
                                 <div 
                                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                                     onDragLeave={() => setIsDragging(false)}
@@ -346,21 +346,31 @@ export const EditProperty = () => {
                                             handleImageChange(event);
                                         }
                                     }}
-                                    className={`border-2 border-dashed rounded-lg p-8 text-center transition-all relative ${isDragging ? 'border-[#D4AF37] bg-[#D4AF37]/10 scale-[1.02]' : 'border-neutral-600 hover:border-[#D4AF37]'}`}
+                                    className={`group border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-500 relative overflow-hidden ${
+                                        isDragging 
+                                        ? 'border-[#D4AF37] bg-[#D4AF37]/10 scale-[1.01] shadow-[0_0_30px_rgba(212,175,55,0.2)]' 
+                                        : 'border-white/10 bg-black/20 hover:border-[#D4AF37]/50'
+                                    }`}
                                 >
                                     <input
                                         type="file"
                                         multiple
                                         accept="image/*"
                                         onChange={handleImageChange}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                     />
-                                    <Upload className={`w-10 h-10 mx-auto mb-3 transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-400'}`} />
-                                    <p className={isDragging ? 'text-[#D4AF37]' : 'text-gray-400'}>
-                                        {isDragging ? 'Drop images now!' : 'Click or drag images here to add more'}
-                                    </p>
-                                    <p className="text-xs text-gray-500 mt-2">Images are automatically optimized</p>
+                                    <div className="relative z-0">
+                                        <div className={`w-16 h-16 rounded-full bg-[#D4AF37]/10 flex items-center justify-center mx-auto mb-4 transition-transform duration-500 ${isDragging ? 'scale-110' : 'group-hover:scale-110'}`}>
+                                            <Upload className={`w-8 h-8 transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-400 group-hover:text-[#D4AF37]'}`} />
+                                        </div>
+                                        <p className={`text-lg font-medium transition-colors ${isDragging ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
+                                            {isDragging ? 'Release to upload' : 'Drag images here to add more'}
+                                        </p>
+                                        <p className="text-sm text-gray-500 mt-1">or click to browse from your device</p>
+                                    </div>
+                                    <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-[#D4AF37]/5 rounded-full blur-3xl"></div>
                                 </div>
+
 
                                 {/* Existing Images */}
                                 {(existingImages.length > 0 || newPreviews.length > 0) && (
