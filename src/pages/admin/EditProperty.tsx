@@ -16,6 +16,14 @@ export const EditProperty = () => {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+
+    const getImageUrl = (url: string) => {
+        if (!url) return 'https://via.placeholder.com/400x300?text=No+Image';
+        if (url.startsWith('http') || url.startsWith('blob:')) return url;
+        const cleanPath = url.startsWith('/') ? url : `/${url}`;
+        return `${baseUrl}${cleanPath}`;
+    };
 
     const [formData, setFormData] = useState({
         title: '',
@@ -166,7 +174,7 @@ export const EditProperty = () => {
 
     // Construct Preview
     const previewMedia = [
-        ...existingImages.map(img => ({ id: img.id, type: 'image' as const, url: img.image_url })),
+        ...existingImages.map(img => ({ id: img.id, type: 'image' as const, url: getImageUrl(img.image_url) })),
         ...newPreviews.map((url, i) => ({ id: `new-${i}`, type: 'image' as const, url: url }))
     ];
 
@@ -394,7 +402,7 @@ export const EditProperty = () => {
                                             <div key={`existing-${img.id}`} className="relative group">
                                                 <span className="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-1 rounded z-10">Saved</span>
                                                 <img
-                                                    src={img.image_url}
+                                                    src={getImageUrl(img.image_url)}
                                                     alt={`Existing ${index}`}
                                                     className="w-full h-32 object-cover rounded border-2 border-transparent"
                                                 />
