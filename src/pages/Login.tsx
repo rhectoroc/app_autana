@@ -134,7 +134,7 @@ export const Login = () => {
 
                         <div className="mt-10 flex items-center justify-center">
                             <button
-                                onClick={() => navigate('/')}
+                                onClick={() => window.location.href = 'https://autanagrouprd.com'}
                                 className="flex items-center gap-2 text-white/30 hover:text-[#D4AF37] transition-colors text-[10px] uppercase tracking-widest font-bold group"
                             >
                                 <ArrowLeft className="w-3 h-3 group-hover:-translate-x-1 transition-transform" />
