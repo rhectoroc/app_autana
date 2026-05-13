@@ -64,7 +64,17 @@ export const EditProperty = () => {
                 description: p.description
             });
             setFeatures(Array.isArray(p.features) ? p.features : JSON.parse(p.features || '[]'));
-            setExistingImages(p.images || []);
+            
+            // Map media to existingImages format
+            const imagesOnly = (p.media || [])
+                .filter((m: any) => m.type === 'image')
+                .map((m: any) => ({
+                    id: m.id,
+                    image_url: m.url, // Map 'url' from API to 'image_url' for state
+                    is_main: m.is_main || false
+                }));
+            
+            setExistingImages(imagesOnly);
             setLoading(false);
         } catch (err) {
             console.error('Failed to fetch property', err);
