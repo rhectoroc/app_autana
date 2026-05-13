@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS properties (
   title VARCHAR(255) NOT NULL,
   description TEXT,
   price DECIMAL(12, 2) NOT NULL,
-  type VARCHAR(50) CHECK (type IN ('rent_short', 'rent_long', 'sale')),
+  type VARCHAR(50) CHECK (type IN ('rent_short', 'rent_long', 'sale', 'luxury')),
   bathrooms DECIMAL(3, 1),
   bedrooms INTEGER,
   area_sqm DECIMAL(10, 2),
@@ -30,3 +30,7 @@ CREATE TABLE IF NOT EXISTS images (
   is_main BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Migration for existing tables
+ALTER TABLE properties DROP CONSTRAINT IF EXISTS properties_type_check;
+ALTER TABLE properties ADD CONSTRAINT properties_type_check CHECK (type IN ('rent_short', 'rent_long', 'sale', 'luxury'));

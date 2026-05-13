@@ -3,7 +3,7 @@ export interface Property {
     title: string;
     location: string;
     price: number;
-    type: 'sale' | 'rent_short' | 'rent_long';
+    type: 'sale' | 'rent_short' | 'rent_long' | 'luxury';
     status?: 'available' | 'sold' | 'rented';
     bedrooms: number;
     bathrooms: number;

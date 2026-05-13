@@ -191,9 +191,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                         <div className="space-y-3">
                             <p className="text-[#D4AF37] text-[10px] uppercase tracking-[0.2em] font-bold">Key Features</p>
                             <div className="flex flex-wrap gap-2">
-                                {property.amenities?.slice(0, 4).map((feat, i) => (
+                                {(Array.isArray(property.amenities) ? property.amenities : []).slice(0, 4).map((feat, i) => (
                                     <span key={i} className="bg-white/5 text-gray-300 text-[10px] px-2 py-1 rounded border border-white/10 italic">
-                                        {feat}
+                                        {typeof feat === 'string' ? feat : JSON.stringify(feat)}
                                     </span>
                                 ))}
                             </div>

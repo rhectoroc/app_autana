@@ -76,13 +76,20 @@ export const AdminDashboard = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {properties.map((prop) => {
-                                    const mainImage = prop.images?.find(i => i.is_main) || prop.images?.[0];
+                                    const mainImage = prop.media?.find(m => m.type === 'image') || prop.media?.[0];
+                                    const getImageUrl = (url: string) => {
+                                        if (!url) return '';
+                                        if (url.startsWith('http')) return url;
+                                        // If API URL is /api, assets are at root
+                                        const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
+                                        return `${baseUrl}${url}`;
+                                    };
                                     return (
                                         <tr key={prop.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="p-4">
                                                 {mainImage ? (
                                                     <img
-                                                        src={mainImage.image_url}
+                                                        src={getImageUrl(mainImage.url)}
                                                         alt={prop.title}
                                                         className="w-16 h-16 object-cover rounded"
                                                         onError={(e) => {
@@ -98,11 +105,14 @@ export const AdminDashboard = () => {
                                             <td className="p-4 font-medium text-gray-800">{prop.title}</td>
                                             <td className="p-4 text-gray-600">${prop.price}</td>
                                             <td className="p-4">
-                                                <span className={`px-3 py-1 rounded-full text-xs font-medium ${prop.type === 'sale' ? 'bg-blue-100 text-blue-800' :
+                                                <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+                                                    prop.type === 'luxury' ? 'bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30' :
+                                                    prop.type === 'sale' ? 'bg-blue-100 text-blue-800' :
                                                     prop.type === 'rent_long' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800'
-                                                    }`}>
+                                                }`}>
                                                     {prop.type === 'rent_short' ? 'Rent (Short)' :
-                                                        prop.type === 'rent_long' ? 'Rent (Long)' : 'Sale'}
+                                                     prop.type === 'rent_long' ? 'Rent (Long)' : 
+                                                     prop.type === 'luxury' ? 'Luxury' : 'Sale'}
                                                 </span>
                                             </td>
                                             <td className="p-4">

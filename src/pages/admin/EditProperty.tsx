@@ -245,6 +245,7 @@ export const EditProperty = () => {
                                         className="w-full bg-neutral-900 border border-neutral-700 rounded p-3 focus:border-[#D4AF37] focus:outline-none"
                                     >
                                         <option value="sale">For Sale</option>
+                                        <option value="luxury">Luxury / De Lujo</option>
                                         <option value="rent_short">Short Term Rent</option>
                                         <option value="rent_long">Long Term Rent</option>
                                     </select>
