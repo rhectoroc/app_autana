@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Trash2, Home, LogOut, Edit } from 'lucide-react';
+import { Plus, Trash2, Home, Edit } from 'lucide-react';
 import api from '../../services/api';
 import type { Property } from '../../types/property';
-import { useAuthStore } from '../../store/useAuthStore';
 
 export const AdminDashboard = () => {
     const [properties, setProperties] = useState<Property[]>([]);
