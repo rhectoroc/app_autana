@@ -65,18 +65,24 @@ export const translateProperty = async (title: string, description: string): Pro
 export const getPropertiesAIContext = async (): Promise<string> => {
     try {
         const result = await pool.query(`
-            SELECT p.title, p.location, p.price, p.type, p.bedrooms, p.bathrooms, p.area_sqm, p.description, p.features
+            SELECT p.id, p.title, p.location, p.price, p.type, p.bedrooms, p.bathrooms, p.area_sqm, p.description, p.features,
+                   COALESCE(json_agg(i.image_url) FILTER (WHERE i.id IS NOT NULL), '[]') as images
             FROM properties p
+            LEFT JOIN images i ON p.id = i.property_id
             WHERE p.status = 'available'
+            GROUP BY p.id
             ORDER BY p.created_at DESC
         `);
 
         if (result.rows.length === 0) return "Currently, there are no available properties in the catalog.";
 
         let context = "INVENTARIO DE PROPIEDADES AUTANA GROUP:\n\n";
+        const baseUrl = (process.env.VITE_API_URL || '').replace(/\/api$/, '');
         
         result.rows.forEach((p, i) => {
-            context += `PROPIEDAD ${i + 1}:\n`;
+            const imageUrls = (p.images || []).map((url: string) => `${baseUrl}${url}`);
+            
+            context += `PROPIEDAD ${i + 1} (ID: ${p.id}):\n`;
             context += `- Título: ${p.title}\n`;
             context += `- Ubicación: ${p.location}\n`;
             context += `- Precio: $${p.price}\n`;
@@ -86,6 +92,7 @@ export const getPropertiesAIContext = async (): Promise<string> => {
             context += `- Área: ${p.area_sqm} m²\n`;
             context += `- Descripción: ${p.description}\n`;
             context += `- Características: ${JSON.parse(p.features || '[]').join(', ')}\n`;
+            context += `- IMÁGENES DISPONIBLES: ${imageUrls.join(', ')}\n`;
             context += `------------------------\n`;
         });
 
@@ -105,14 +112,16 @@ export const chatWithAI = async (message: string, history: any[] = []): Promise<
     try {
         const context = await getPropertiesAIContext();
         const systemPrompt = `
-            Eres el Concierge de Autana Group. Tu objetivo es ayudar a clientes de alto perfil a encontrar la propiedad de sus sueños.
+            Eres el Concierge de Autana Group, un Agente Inmobiliario de Lujo. Tu objetivo es ayudar a clientes de alto perfil a encontrar la propiedad de sus sueños.
             
             IDENTIDAD Y REGLAS:
             - Eres sofisticado, servicial y profesional.
             - Usa un tono de lujo caribeño.
             - Responde siempre en el idioma del cliente.
-            - No inventes propiedades que no estén en el contexto.
-            - Si el cliente está interesado, invita a agendar una visita privada.
+            - No inventes propiedades que no estén en el catálogo.
+            - Si el cliente está interesado en una propiedad específica, DEBES enviarle los enlaces de las imágenes que tienes en el catálogo.
+            - Cuando envíes imágenes, hazlo de forma atractiva, por ejemplo: "Aquí puede apreciar la belleza de esta villa: [URL]".
+            - Si el cliente busca algo general (ej: "busco algo en venta"), ofrece 2 o 3 opciones que encajen y diles que puedes enviarles fotos si lo desean.
             
             CONTEXTO DEL CATÁLOGO ACTUAL:
             ${context}
@@ -121,10 +130,11 @@ export const chatWithAI = async (message: string, history: any[] = []): Promise<
         const response = await axios.post(DEEPSEEK_URL, {
             model: 'deepseek-chat',
             messages: [
-                { role: 'system', content: systemPrompt },
+                { role: 'system', content: systemPrompt + "\n\nIMPORTANTE: Tu respuesta DEBE ser un objeto JSON válido con dos campos: 'text' (tu mensaje al cliente) y 'media' (un array de strings con los URLs de las imágenes que quieres mostrar). Si no quieres mostrar imágenes, envía un array vacío." },
                 ...history,
                 { role: 'user', content: message }
             ],
+            response_format: { type: 'json_object' },
             temperature: 0.5
         }, {
             headers: {

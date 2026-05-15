@@ -11,15 +11,12 @@ interface ProcessedImage {
     // We no longer return a buffer, we write directly to disk
 }
 
-export const processImage = async (inputPath: string, originalName: string, index: number = 0): Promise<ProcessedImage> => {
-    // Generate new filename with .jpg extension
+export const processImage = async (inputPath: string, originalName: string, index: number = 0, propertyId: string | number = 'anon'): Promise<ProcessedImage> => {
+    // Generate new filename with propertyId and timestamp
     const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const dateStr = `${day}_${month}_${year}`;
+    const timestamp = date.getTime();
     const suffix = index > 0 ? String(index).padStart(2, '0') : Math.random().toString(36).substring(2, 6);
-    const newFilename = `${dateStr}_${suffix}.webp`;
+    const newFilename = `prop_${propertyId}_${timestamp}_${suffix}.webp`;
     const outputPath = path.join(process.cwd(), 'uploads', newFilename);
 
     // Path to watermark

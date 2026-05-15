@@ -40,7 +40,7 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
             const imageFiles = files.images;
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
-                const { filename } = await processImage(file.path, file.originalname, i + 1);
+                const { filename } = await processImage(file.path, file.originalname, i + 1, propertyId);
                 const isMain = i === 0;
                 await client.query(
                     `INSERT INTO images (property_id, image_url, is_main) VALUES ($1, $2, $3)`,
@@ -242,7 +242,7 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
             const imageFiles = files.images;
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
-                const { filename } = await processImage(file.path, file.originalname, i + 1);
+                const { filename } = await processImage(file.path, file.originalname, i + 1, id);
                 await client.query(
                     `INSERT INTO images (property_id, image_url, is_main) VALUES ($1, $2, $3)`,
                     [id, `/uploads/${filename}`, false]
