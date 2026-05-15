@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation } from 'swiper/modules';
 import type { Property } from '../types/property';
-import { formatCurrency } from '../utils/format';
+import { formatCurrency, getMediaUrl } from '../utils/format';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
