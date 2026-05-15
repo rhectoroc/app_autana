@@ -147,7 +147,7 @@ export const CreateProperty = () => {
     };
 
     // Construct preview property object
-    const previewMedia = previews.map((url, i) => ({
+    const previewMedia: Property['media'] = previews.map((url, i) => ({
         id: `p-${i}`,
         type: 'image' as const,
         url: url

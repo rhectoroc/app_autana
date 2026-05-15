@@ -201,7 +201,7 @@ export const EditProperty = () => {
     };
 
     // Construct Preview
-    const previewMedia = [
+    const previewMedia: Property['media'] = [
         ...existingImages.map(img => ({ id: img.id, type: 'image' as const, url: getImageUrl(img.image_url) })),
         ...newPreviews.map((url, i) => ({ id: `new-${i}`, type: 'image' as const, url: url }))
     ];
