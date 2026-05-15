@@ -135,6 +135,7 @@ export const CreateProperty = () => {
                         setUploadProgress(percentCompleted);
                     }
                 }
+            });
             showToast('Property created successfully!', 'success');
             navigate('/admin/dashboard');
         } catch (err) {

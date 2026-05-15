@@ -178,6 +178,7 @@ export const EditProperty = () => {
                         setUploadProgress(percentCompleted);
                     }
                 }
+            });
             showToast('Property updated successfully!', 'success');
             navigate('/admin/dashboard');
         } catch (err) {
