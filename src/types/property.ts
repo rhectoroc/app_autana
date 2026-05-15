@@ -16,6 +16,7 @@ export interface Property {
         id: string | number;
         type: 'image' | 'video';
         url: string;
+        is_main?: boolean;
     }[];
     area_sqm: number;
     parking_spots?: number;
