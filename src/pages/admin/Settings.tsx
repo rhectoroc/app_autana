@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
 import { Folder, File, HardDrive, Search, ChevronRight, ChevronDown, Package, ExternalLink, Trash2, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { ConfirmModal } from '../../components/ui/ConfirmModal';
 
 interface StorageFile {
     name: string;
@@ -29,6 +29,21 @@ export const Settings = () => {
     const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
     const [searchTerm, setSearchTerm] = useState('');
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    
+    // Modal states
+    const [confirmModal, setConfirmModal] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+        isDanger?: boolean;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {}
+    });
+
     const { showToast } = useToast();
 
     const fetchStats = async () => {
@@ -57,28 +72,42 @@ export const Settings = () => {
         setExpandedFolders(next);
     };
 
-    const handleDeleteFile = async (folder: string | null, filename: string) => {
-        if (!window.confirm(`Are you sure you want to delete ${filename}? This action cannot be undone.`)) return;
-
-        try {
-            await api.post('/explorer/delete-file', { folder, filename });
-            showToast('File deleted successfully', 'success');
-            fetchStats(); // Refresh
-        } catch (err) {
-            showToast('Failed to delete file', 'error');
-        }
+    const handleDeleteFile = (folder: string | null, filename: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete File',
+            message: `Are you sure you want to delete ${filename}? This action cannot be undone.`,
+            isDanger: true,
+            onConfirm: async () => {
+                try {
+                    await api.post('/explorer/delete-file', { folder, filename });
+                    showToast('File deleted successfully', 'success');
+                    fetchStats();
+                } catch (err) {
+                    showToast('Failed to delete file', 'error');
+                }
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            }
+        });
     };
 
-    const handleDeleteFolder = async (folder: string) => {
-        if (!window.confirm(`WARNING: This will delete the entire folder "${folder}" and ALL its content. Proceed?`)) return;
-
-        try {
-            await api.post('/explorer/delete-folder', { folder });
-            showToast('Folder deleted successfully', 'success');
-            fetchStats(); // Refresh
-        } catch (err) {
-            showToast('Failed to delete folder', 'error');
-        }
+    const handleDeleteFolder = (folder: string) => {
+        setConfirmModal({
+            isOpen: true,
+            title: 'Delete Property Folder',
+            message: `WARNING: This will delete the entire folder "${folder}" and ALL its content. This might break image links if the property still exists. Proceed?`,
+            isDanger: true,
+            onConfirm: async () => {
+                try {
+                    await api.post('/explorer/delete-folder', { folder });
+                    showToast('Folder deleted successfully', 'success');
+                    fetchStats();
+                } catch (err) {
+                    showToast('Failed to delete folder', 'error');
+                }
+                setConfirmModal(prev => ({ ...prev, isOpen: false }));
+            }
+        });
     };
 
     const formatSize = (bytes: number) => {
@@ -359,6 +388,17 @@ export const Settings = () => {
                     </div>
                 </div>
             )}
+            
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                isDanger={confirmModal.isDanger}
+                onConfirm={confirmModal.onConfirm}
+                onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+                confirmText="Delete Permanently"
+            />
             
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar {

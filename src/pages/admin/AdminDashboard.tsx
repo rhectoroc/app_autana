@@ -3,9 +3,16 @@ import { Link } from 'react-router-dom';
 import { Plus, Trash2, Home, Edit } from 'lucide-react';
 import api from '../../services/api';
 import type { Property } from '../../types/property';
+import { ConfirmModal } from '../../components/ui/ConfirmModal';
 
 export const AdminDashboard = () => {
     const [properties, setProperties] = useState<Property[]>([]);
+
+    // Modal state
+    const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string | number | null }>({
+        isOpen: false,
+        id: null
+    });
 
     const fetchProperties = async () => {
         try {
@@ -23,14 +30,19 @@ export const AdminDashboard = () => {
         fetchProperties();
     }, []);
 
-    const handleDelete = async (id: string | number) => {
-        if (confirm('Are you sure you want to delete this property?')) {
-            try {
-                await api.delete(`/properties/${id}`);
-                setProperties(properties.filter(p => p.id !== id));
-            } catch (err) {
-                console.error('Failed to delete property', err);
-            }
+    const handleDelete = (id: string | number) => {
+        setConfirmDelete({ isOpen: true, id });
+    };
+
+    const confirmDeleteAction = async () => {
+        if (!confirmDelete.id) return;
+        try {
+            await api.delete(`/properties/${confirmDelete.id}`);
+            setProperties(properties.filter(p => p.id !== confirmDelete.id));
+        } catch (err) {
+            console.error('Failed to delete property', err);
+        } finally {
+            setConfirmDelete({ isOpen: false, id: null });
         }
     };
 
@@ -158,6 +170,17 @@ export const AdminDashboard = () => {
                     </table>
                 </div>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            <ConfirmModal
+                isOpen={confirmDelete.isOpen}
+                title="Delete Property"
+                message="Are you sure you want to permanently delete this luxury estate? This action will remove all associated media and data."
+                confirmText="Delete Property"
+                isDanger={true}
+                onConfirm={confirmDeleteAction}
+                onCancel={() => setConfirmDelete({ isOpen: false, id: null })}
+            />
         </div>
     );
 };
