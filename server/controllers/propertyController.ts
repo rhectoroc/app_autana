@@ -210,19 +210,20 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
         );
 
         // Handle Images
-        // existingImages is sent as a JSON string of IDs to keep
+        const { mainImageId, existingImages } = req.body;
         const keepIds = existingImages ? JSON.parse(existingImages) : [];
 
-        // Construct delete query
+        // 1. Reset all images to NOT main for this property
+        await client.query('UPDATE images SET is_main = false WHERE property_id = $1', [id]);
+
+        // 2. Delete images NOT in the keep list
         let deleteQuery = '';
         let deleteParams: any[] = [id];
 
         if (keepIds.length > 0) {
-            // Delete images NOT in the keep list
             deleteQuery = `DELETE FROM images WHERE property_id = $1 AND id NOT IN (${keepIds.map((_: any, i: number) => '$' + (i + 2)).join(',')}) RETURNING image_url`;
             deleteParams = [id, ...keepIds];
         } else {
-            // If empty, delete ALL images for this property
             deleteQuery = `DELETE FROM images WHERE property_id = $1 RETURNING image_url`;
         }
 
@@ -234,18 +235,25 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
             const filePath = path.join(process.cwd(), relativePath);
             if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
         });
-        // If existingImages is NOT sent or empty string? Be careful not to delete all if not intended. 
-        // Let's assume if it is NOT present, we do nothing to existing. If it is present but empty, we delete all?
-        // Better: Frontend MUST send 'existingImages' as JSON string of ID array if it wants to manage them.
 
+        // 3. Set existing image as main if mainImageId is an ID
+        if (mainImageId && !String(mainImageId).startsWith('new-')) {
+            await client.query('UPDATE images SET is_main = true WHERE id = $1 AND property_id = $2', [mainImageId, id]);
+        }
+
+        // 4. Handle New Images
         if (files && files.images) {
             const imageFiles = files.images;
             for (let i = 0; i < imageFiles.length; i++) {
                 const file = imageFiles[i];
                 const { filename } = await processImage(file.path, file.originalname, i + 1, id);
+                
+                // Check if this new image is the selected main
+                const isThisMain = mainImageId === `new-${i}`;
+                
                 await client.query(
                     `INSERT INTO images (property_id, image_url, is_main) VALUES ($1, $2, $3)`,
-                    [id, `/uploads/${filename}`, false]
+                    [id, `/uploads/${filename}`, isThisMain]
                 );
             }
         }

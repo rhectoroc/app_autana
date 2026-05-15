@@ -48,6 +48,7 @@ export const EditProperty = () => {
     const [existingImages, setExistingImages] = useState<{ id: string | number, image_url: string, is_main: boolean }[]>([]);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [newPreviews, setNewPreviews] = useState<string[]>([]);
+    const [mainImageId, setMainImageId] = useState<string | number | null>(null);
     const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
     const [existingVideo, setExistingVideo] = useState<string | null>(null);
 
@@ -80,6 +81,10 @@ export const EditProperty = () => {
             
             setExistingImages(imagesOnly);
             
+            const main = imagesOnly.find((img: any) => img.is_main);
+            if (main) setMainImageId(main.id);
+            else if (imagesOnly.length > 0) setMainImageId(imagesOnly[0].id);
+
             if (p.video_url) {
                 setExistingVideo(p.video_url);
             }
@@ -132,6 +137,11 @@ export const EditProperty = () => {
                 // Generate previews
                 const incomingPreviews = optimizedFiles.map(file => URL.createObjectURL(file));
                 setNewPreviews([...newPreviews, ...incomingPreviews]);
+
+                // If no main image, set first new one as main
+                if (mainImageId === null && incomingPreviews.length > 0) {
+                    setMainImageId(`new-0`);
+                }
             } catch (error) {
                 console.error('Image processing failed', error);
                 showToast('Failed to process some images.', 'error');
@@ -142,7 +152,13 @@ export const EditProperty = () => {
     };
 
     const removeExistingImage = (imageId: string | number) => {
-        setExistingImages(existingImages.filter(img => img.id !== imageId));
+        const filtered = existingImages.filter(img => img.id !== imageId);
+        setExistingImages(filtered);
+        if (mainImageId === imageId) {
+            if (filtered.length > 0) setMainImageId(filtered[0].id);
+            else if (newImages.length > 0) setMainImageId('new-0');
+            else setMainImageId(null);
+        }
     };
 
     const removeNewImage = (index: number) => {
@@ -150,6 +166,13 @@ export const EditProperty = () => {
         const updatedPreviews = newPreviews.filter((_, i) => i !== index);
         setNewImages(updatedImages);
         setNewPreviews(updatedPreviews);
+
+        const newId = `new-${index}`;
+        if (mainImageId === newId) {
+            if (existingImages.length > 0) setMainImageId(existingImages[0].id);
+            else if (updatedImages.length > 0) setMainImageId('new-0');
+            else setMainImageId(null);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -170,6 +193,10 @@ export const EditProperty = () => {
         // Send existing image IDs as JSON array string
         const keepIds = existingImages.map(img => img.id);
         data.append('existingImages', JSON.stringify(keepIds));
+        
+        if (mainImageId) {
+            data.append('mainImageId', String(mainImageId));
+        }
 
         // Append new images
         newImages.forEach((file) => {
@@ -457,36 +484,60 @@ export const EditProperty = () => {
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
                                         {existingImages.map((img, index) => (
                                             <div key={`existing-${img.id}`} className="relative group">
-                                                <span className="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-1 rounded z-10">Saved</span>
+                                                <span className="absolute top-1 left-1 bg-blue-600/80 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded shadow-lg z-10 font-bold uppercase tracking-tighter">Saved</span>
+                                                {mainImageId === img.id && (
+                                                    <span className="absolute top-1 left-12 bg-[#D4AF37] text-black text-[10px] px-2 py-0.5 rounded shadow-lg z-10 font-bold uppercase tracking-tighter animate-pulse">Main</span>
+                                                )}
                                                 <img
                                                     src={getImageUrl(img.image_url)}
                                                     alt={`Existing ${index}`}
-                                                    className="w-full h-32 object-cover rounded border-2 border-transparent"
+                                                    className={`w-full h-40 object-cover rounded-xl transition-all duration-300 ${mainImageId === img.id ? 'border-4 border-[#D4AF37] scale-[1.02] shadow-[0_0_20px_rgba(212,175,55,0.3)]' : 'border-2 border-white/10 group-hover:border-white/30'}`}
                                                 />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setMainImageId(img.id)}
+                                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainImageId === img.id ? 'bg-[#D4AF37] text-black' : 'bg-white/20 text-white hover:bg-white/40'}`}
+                                                    >
+                                                        {mainImageId === img.id ? 'Main Image' : 'Set as Main'}
+                                                    </button>
+                                                </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => removeExistingImage(img.id)}
-                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 hover:scale-110 transition-all z-10"
+                                                    className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1.5 backdrop-blur-sm transition-all z-20 shadow-lg"
                                                 >
-                                                    <X className="w-3 h-3" />
+                                                    <X className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
                                         ))}
 
                                         {newPreviews.map((src, index) => (
                                             <div key={`new-${index}`} className="relative group">
-                                                <span className="absolute top-1 left-1 bg-green-600 text-white text-[10px] px-1 rounded z-10">New</span>
+                                                <span className="absolute top-1 left-1 bg-green-600/80 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 rounded shadow-lg z-10 font-bold uppercase tracking-tighter">New</span>
+                                                {mainImageId === `new-${index}` && (
+                                                    <span className="absolute top-1 left-10 bg-[#D4AF37] text-black text-[10px] px-2 py-0.5 rounded shadow-lg z-10 font-bold uppercase tracking-tighter animate-pulse">Main</span>
+                                                )}
                                                 <img
                                                     src={src}
                                                     alt={`New ${index}`}
-                                                    className="w-full h-32 object-cover rounded border-2 border-green-500/50"
+                                                    className={`w-full h-40 object-cover rounded-xl transition-all duration-300 ${mainImageId === `new-${index}` ? 'border-4 border-[#D4AF37] scale-[1.02] shadow-[0_0_20px_rgba(212,175,55,0.3)]' : 'border-2 border-white/10 group-hover:border-white/30'}`}
                                                 />
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setMainImageId(`new-${index}`)}
+                                                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainImageId === `new-${index}` ? 'bg-[#D4AF37] text-black' : 'bg-white/20 text-white hover:bg-white/40'}`}
+                                                    >
+                                                        {mainImageId === `new-${index}` ? 'Main Image' : 'Set as Main'}
+                                                    </button>
+                                                </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => removeNewImage(index)}
-                                                    className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 opacity-100 hover:scale-110 transition-all z-10"
+                                                    className="absolute top-2 right-2 bg-red-500/80 hover:bg-red-500 text-white rounded-full p-1.5 backdrop-blur-sm transition-all z-20 shadow-lg"
                                                 >
-                                                    <X className="w-3 h-3" />
+                                                    <X className="w-3.5 h-3.5" />
                                                 </button>
                                             </div>
                                         ))}
