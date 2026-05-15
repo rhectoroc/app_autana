@@ -1,29 +1,21 @@
-# 🚀 Autana Group: Progress Log (Advance)
+# Autana Admin & Backend - Registro de Avances
 
-Este archivo registra los hitos, cambios significativos y el estado actual del desarrollo.
+## Fecha: 15 de Mayo, 2026
 
----
+### 🛡️ Integridad de Datos (Crítico)
+- **Fix de Colisión de Imágenes**: Se resolvió el bug donde nuevas propiedades sobrescribían fotos de registros existentes.
+- **Nueva Lógica de Naming**: Implementación de nomenclatura única: `prop_[ID]_[TIMESTAMP]_[INDEX].webp`.
+- **Procesamiento WebP**: Optimización automática de todas las subidas a formato WebP con marca de agua, vinculada directamente al ID de la propiedad.
 
-## 📅 Estado Actual: 15 de Mayo, 2026
+### 🤖 Inteligencia Artificial (Concierge)
+- **Estructura JSON**: El agente ahora responde en formato estructurado, separando texto de multimedia.
+- **Envío de Media Directo**: Integración con **Evolution API** para enviar imágenes físicas de las propiedades a WhatsApp en lugar de simples URLs.
+- **Entrenamiento de Marca**: Se incorporaron los valores de Autana Group (gestión integral, rentas cortas/largas, mantenimiento) en el sistema de prompts del agente.
 
-### ✅ Logros Recientes
-*   **Infraestructura:** Despliegue exitoso en Easypanel con configuración de Nginx y health checks operativos.
-*   **Migración de Stack:** Todo el ecosistema ha sido migrado de `npm` a **`pnpm`** para mejorar el rendimiento y la eficiencia de dependencias. Se han actualizado los `Dockerfile` para soportar pnpm.
-*   **Identidad Visual:** Implementación de tarjetas de propiedades con **3D Flip Effect** y galerías interactivas.
-*   **Estandarización de Tipos:** Se ha integrado el tipo `luxury` en todo el sistema (Base de Datos, TypeScript y Traducciones).
-*   **Gestión de Medios:** Backend configurado para optimizar automáticamente imágenes a WebP usando Sharp.
-*   **UX/UI Premium:** Implementación de un sistema de **Notificaciones (Toasts)** personalizado con estética "Luxury" (Glassmorphism + Gold), eliminando el uso de alertas nativas del navegador.
-*   **Optimización:** Eliminación de preloads innecesarios y reemplazo de placeholders externos por recursos locales para evitar errores de conexión.
-*   **Media Pipeline:** Expansión de límites a **20 imágenes + 1 video**. Conversión automática a **WebP (Imágenes) y WebM (Video)** con compresión optimizada.
-*   **Brand Protection:** Sistema de **Marca de Agua (Watermark)** proporcional integrado en el procesamiento de imágenes.
-*   **Global Admin:** Traducción completa del panel administrativo al **Inglés** para estandarización internacional.
-*   **Admin Panel:** Interfaz de login y dashboard administrativo con estética "Premium Slate".
-
-### 🛠️ En Desarrollo / Pendiente
-*   **Gestión de Usuarios:** Implementación de roles y permisos detallados en el panel admin.
-*   **Reportes:** Creación de la sección de estadísticas de visualización de propiedades.
-*   **SEO:** Optimización de Meta Tags dinámicos para cada propiedad en el portal público.
+### 💼 Panel Administrativo
+- **Gestión de Imagen Principal**: Se habilitó la funcionalidad "Set as Main" en el flujo de edición.
+- **Audit de Edición**: Corrección en la persistencia de imágenes existentes durante la actualización de propiedades.
+- **TS Build Fix**: Resolución de errores de redeclaración y tipado que bloqueaban el despliegue en Easypanel.
 
 ---
-
-**Estado del Sistema:** 🟢 Operativo y en fase de refinamiento de UI/UX.
+*Documento actualizado por Antigravity AI.*
