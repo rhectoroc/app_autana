@@ -139,35 +139,35 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
                                     </div>
                                 </div>
 
-                                {/* Thumbnail Gallery */}
-                                <div className="p-4 bg-white border-t border-gray-100 flex gap-3 overflow-x-auto scrollbar-hide">
-                                    {property.media.map((item, index) => (
-                                        <motion.button
-                                            key={index}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            onClick={() => swiperInstance?.slideToLoop(index)}
-                                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${activeIndex === index ? 'border-gold-500 shadow-lg' : 'border-transparent opacity-50 hover:opacity-100'
+                                {/* Thumbnails Gallery (The empty space) */}
+                                <div className="bg-white p-4 border-t border-gray-100 overflow-x-auto scrollbar-hide">
+                                    <div className="flex gap-2 min-w-max">
+                                        {property.media.map((item, idx) => (
+                                            <button
+                                                key={item.id || idx}
+                                                onClick={() => swiperInstance?.slideToLoop(idx)}
+                                                className={`relative w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                                                    activeIndex === idx ? 'border-gold-500 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
                                                 }`}
-                                        >
-                                            {item.type === 'video' ? (
-                                                <div className="w-full h-full bg-charcoal flex items-center justify-center relative">
-                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
-                                                        <div className="w-6 h-6 rounded-full border border-white flex items-center justify-center">
-                                                            <div className="w-0 h-0 border-t-4 border-t-transparent border-l-6 border-l-white border-b-4 border-b-transparent ml-1" />
+                                            >
+                                                <img
+                                                    src={item.type === 'video' 
+                                                        ? property.media.find(m => m.type === 'image')?.url || getMediaUrl(item.url)
+                                                        : getMediaUrl(item.url)
+                                                    }
+                                                    className="w-full h-full object-cover"
+                                                    alt={`Thumb ${idx}`}
+                                                />
+                                                {item.type === 'video' && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                                                        <div className="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                                                            <div className="w-0 h-0 border-t-[4px] border-t-transparent border-l-[7px] border-l-white border-b-[4px] border-b-transparent ml-0.5" />
                                                         </div>
                                                     </div>
-                                                    <video src={getMediaUrl(item.url)} className="w-full h-full object-cover" />
-                                                </div>
-                                            ) : (
-                                                <img
-                                                    src={getMediaUrl(item.url)}
-                                                    alt={`Thumbnail ${index}`}
-                                                    className="w-full h-full object-cover"
-                                                />
-                                            )}
-                                        </motion.button>
-                                    ))}
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 

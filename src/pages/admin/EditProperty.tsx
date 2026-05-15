@@ -48,6 +48,8 @@ export const EditProperty = () => {
     const [existingImages, setExistingImages] = useState<{ id: string | number, image_url: string, is_main: boolean }[]>([]);
     const [newImages, setNewImages] = useState<File[]>([]);
     const [newPreviews, setNewPreviews] = useState<string[]>([]);
+    const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+    const [existingVideo, setExistingVideo] = useState<string | null>(null);
 
     const fetchProperty = useCallback(async () => {
         try {
@@ -77,6 +79,11 @@ export const EditProperty = () => {
                 }));
             
             setExistingImages(imagesOnly);
+            
+            if (p.video_url) {
+                setExistingVideo(p.video_url);
+            }
+            
             setLoading(false);
         } catch (err) {
             console.error('Failed to fetch property', err);
@@ -169,6 +176,10 @@ export const EditProperty = () => {
             data.append('images', file);
         });
 
+        if (selectedVideo) {
+            data.append('video', selectedVideo);
+        }
+
         try {
             await api.put(`/properties/${id}`, data, {
                 headers: { 'Content-Type': 'multipart/form-data' },
@@ -194,6 +205,12 @@ export const EditProperty = () => {
         ...existingImages.map(img => ({ id: img.id, type: 'image' as const, url: getImageUrl(img.image_url) })),
         ...newPreviews.map((url, i) => ({ id: `new-${i}`, type: 'image' as const, url: url }))
     ];
+
+    if (selectedVideo) {
+        previewMedia.push({ id: 'new-video', type: 'video' as const, url: URL.createObjectURL(selectedVideo) });
+    } else if (existingVideo) {
+        previewMedia.push({ id: 'old-video', type: 'video' as const, url: getImageUrl(existingVideo) });
+    }
 
     const previewProperty: Property = {
         id: id || 'preview',
@@ -474,6 +491,37 @@ export const EditProperty = () => {
                                             </div>
                                         ))}
                                     </div>
+                                )}
+                            </div>
+
+                            {/* Video Upload */}
+                            <div className="mt-8">
+                                <label htmlFor="video-upload" className="block text-gray-300 mb-2">Video (Optional - Max 1)</label>
+                                <div className="border-2 border-dashed border-neutral-600 rounded-lg p-6 text-center hover:border-[#D4AF37] transition-colors relative">
+                                    <input
+                                        id="video-upload"
+                                        name="video-upload"
+                                        type="file"
+                                        accept="video/*"
+                                        onChange={e => setSelectedVideo(e.target.files?.[0] || null)}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                    />
+                                    <p className="text-gray-400">
+                                        {selectedVideo ? `Selected: ${selectedVideo.name}` : 
+                                         existingVideo ? 'Update current video' : 'Click to upload video'}
+                                    </p>
+                                </div>
+                                {(selectedVideo || existingVideo) && (
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            setSelectedVideo(null);
+                                            setExistingVideo(null);
+                                        }}
+                                        className="mt-2 text-red-500 text-sm hover:underline"
+                                    >
+                                        Remove video
+                                    </button>
                                 )}
                             </div>
 

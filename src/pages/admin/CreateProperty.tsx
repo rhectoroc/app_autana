@@ -147,6 +147,20 @@ export const CreateProperty = () => {
     };
 
     // Construct preview property object
+    const previewMedia = previews.map((url, i) => ({
+        id: `p-${i}`,
+        type: 'image' as const,
+        url: url
+    }));
+
+    if (selectedVideo) {
+        previewMedia.push({
+            id: 'v-preview',
+            type: 'video' as const,
+            url: URL.createObjectURL(selectedVideo)
+        });
+    }
+
     const previewProperty: Property = {
         id: 'preview',
         title: formData.title || 'Property Title',
@@ -159,20 +173,16 @@ export const CreateProperty = () => {
         parking_spots: Number(formData.parking_spots) || 0,
         description: formData.description,
         amenities: features,
-        features: features, // Using features for both fields to ensure compatibility
-        media: previews.length > 0 ? previews.map((url, i) => ({
-            id: `p-${i}`,
-            type: 'image',
-            url: url
-        })) : [{ id: 'placeholder', type: 'image', url: '/logo/logoOriginal.png' }], // Use local logo as premium fallback
+        features: features, 
+        media: previewMedia.length > 0 ? previewMedia : [{ id: 'placeholder', type: 'image', url: '/logo/logoOriginal.png' }],
         status: 'available'
     };
 
     // Sort preview media to respect main image selection
-    if (previews.length > 0 && mainImageIndex > 0 && mainImageIndex < previewProperty.media.length) {
-        const main = previewProperty.media[mainImageIndex];
-        previewProperty.media.splice(mainImageIndex, 1);
-        previewProperty.media.unshift(main);
+    if (previewMedia.length > 0 && mainImageIndex > 0 && mainImageIndex < previewMedia.length) {
+        const main = previewMedia[mainImageIndex];
+        previewMedia.splice(mainImageIndex, 1);
+        previewMedia.unshift(main);
     }
 
     return (
