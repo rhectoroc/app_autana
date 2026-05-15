@@ -47,10 +47,14 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
 
         await client.query('COMMIT');
         res.status(201).json({ message: 'Property created successfully', propertyId });
-    } catch (err) {
+    } catch (err: any) {
         await client.query('ROLLBACK');
-        console.error(err);
-        res.status(500).json({ message: 'Error creating property' });
+        console.error('Property Creation Error:', err);
+        res.status(500).json({ 
+            message: 'Error creating property', 
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        });
     } finally {
         client.release();
     }
@@ -241,10 +245,13 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
 
         await client.query('COMMIT');
         res.json({ message: 'Property updated successfully' });
-    } catch (err) {
+    } catch (err: any) {
         await client.query('ROLLBACK');
-        console.error(err);
-        res.status(500).json({ message: 'Error updating property' });
+        console.error('Property Update Error:', err);
+        res.status(500).json({ 
+            message: 'Error updating property', 
+            error: err.message 
+        });
     } finally {
         client.release();
     }

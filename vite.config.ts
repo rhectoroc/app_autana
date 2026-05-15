@@ -9,5 +9,16 @@ export default defineConfig({
       '/uploads': 'http://localhost:5000',
       '/api': 'http://localhost:5000'
     }
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['framer-motion', 'lucide-react', 'swiper'],
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000,
   }
 })

@@ -71,7 +71,20 @@ if (fs.existsSync(clientBuildPath)) {
 }
 
 // Database Intialization
-initDB();
+const initializeApp = async () => {
+    try {
+        await initDB();
+        // Schema patches for existing deployments
+        await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS parking_spots INTEGER DEFAULT 0');
+        await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS features JSONB DEFAULT \'[]\'');
+        await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS video_url VARCHAR(255)');
+        console.log('Database schema verified and patched.');
+    } catch (err) {
+        console.error('Database initialization error:', err);
+    }
+};
+
+initializeApp();
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

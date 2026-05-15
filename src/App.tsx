@@ -12,9 +12,9 @@ const CreateProperty = lazy(() => import('./pages/admin/CreateProperty').then(mo
 const EditProperty = lazy(() => import('./pages/admin/EditProperty').then(module => ({ default: module.EditProperty })));
 
 // Placeholders for new pages
-const UsersPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Gestión de Usuarios</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Próximamente...</p></div>;
-const SettingsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Configuración del Sistema</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Próximamente...</p></div>;
-const ReportsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Reportes y Estadísticas</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Próximamente...</p></div>;
+const UsersPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">User Management</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
+const SettingsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">System Settings</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
+const ReportsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Reports & Analytics</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
 
 import { ToastProvider } from './context/ToastContext';
 
