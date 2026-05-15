@@ -20,7 +20,10 @@ interface PropertyCardProps {
 export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
     const [isFlipped, setIsFlipped] = useState(false);
     const [isPlaying, setIsPlaying] = useState<string | number | null>(null);
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
+
+    const displayTitle = (language === 'en' && property.title_en) ? property.title_en : property.title;
+    const displayDescription = (language === 'en' && property.description_en) ? property.description_en : property.description;
 
 
     const getTypeLabel = (type: Property['type']) => {
@@ -144,7 +147,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
             <div onClick={onClick} className="block p-5 cursor-pointer">
                 <div className="flex items-start justify-between mb-2">
                     <h3 className="font-serif text-xl text-charcoal font-medium line-clamp-1 group-hover:text-gold-500 transition-colors">
-                        {property.title}
+                        {displayTitle}
                     </h3>
                 </div>
 
@@ -191,9 +194,9 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                             </span>
                         </div>
                         
-                        <h4 className="text-white font-serif text-xl mb-3">{property.title}</h4>
+                        <h4 className="text-white font-serif text-xl mb-3">{displayTitle}</h4>
                         <p className="text-gray-400 text-sm line-clamp-4 mb-6 italic leading-relaxed">
-                            "{property.description}"
+                            "{displayDescription}"
                         </p>
 
                         <div className="space-y-3">

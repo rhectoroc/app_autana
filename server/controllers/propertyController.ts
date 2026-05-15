@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { processImage } from '../utils/imageProcessor.js';
 import { processVideo } from '../utils/videoProcessor.js';
+import { translateProperty } from '../services/aiService.js';
 
 export const createProperty = async (req: Request, res: Response): Promise<void> => {
     const client = await pool.connect();
@@ -23,11 +24,14 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
             videoUrl = `/uploads/${processedVideoName}`;
         }
 
+        // Auto-translate using DeepSeek
+        const { title_en, description_en } = await translateProperty(title, description);
+
         const propResult = await client.query(
-            `INSERT INTO properties (title, description, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, video_url, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+            `INSERT INTO properties (title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, video_url, status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
              RETURNING id`,
-            [title, description, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), videoUrl, status || 'available']
+            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), videoUrl, status || 'available']
         );
 
         const propertyId = propResult.rows[0].id;
@@ -194,12 +198,15 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
             videoParams.push(`/uploads/${processedVideoName}`);
         }
 
+        // Auto-translate using DeepSeek
+        const { title_en, description_en } = await translateProperty(title, description);
+
         // Update property details
         await client.query(
             `UPDATE properties 
-             SET title = $1, description = $2, price = $3, type = $4, bathrooms = $5, bedrooms = $6, area_sqm = $7, parking_spots = $8, location = $9, features = $10, status = $11${videoUpdateSql}
-             WHERE id = $${12 + videoParams.length}`,
-            [title, description, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available', ...videoParams, id]
+             SET title = $1, title_en = $2, description = $3, description_en = $4, price = $5, type = $6, bathrooms = $7, bedrooms = $8, area_sqm = $9, parking_spots = $10, location = $11, features = $12, status = $13${videoUpdateSql}
+             WHERE id = $${14 + videoParams.length}`,
+            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available', ...videoParams, id]
         );
 
         // Handle Images

@@ -16,10 +16,13 @@ interface PropertyDetailsModalProps {
 }
 
 export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ property, onClose }) => {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     const [copied, setCopied] = useState(false);
     const [swiperInstance, setSwiperInstance] = useState<any>(null);
     const [activeIndex, setActiveIndex] = useState(0);
+
+    const displayTitle = (language === 'en' && property.title_en) ? property.title_en : property.title;
+    const displayDescription = (language === 'en' && property.description_en) ? property.description_en : property.description;
 
     // Prevent background scroll when modal is open
     useEffect(() => {
@@ -172,7 +175,7 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
                             <div className="lg:w-2/5 p-6 lg:p-8 bg-white overflow-y-auto max-h-[90vh]">
                                 <div className="flex justify-between items-start mb-2">
                                     <h2 className="text-2xl md:text-3xl font-serif text-charcoal leading-tight">
-                                        {property.title}
+                                        {displayTitle}
                                     </h2>
                                 </div>
 
@@ -216,7 +219,7 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
                                     <div>
                                         <h3 className="text-sm font-bold uppercase text-charcoal mb-2 tracking-wider">Description</h3>
                                         <p className="text-gray-600 text-sm leading-relaxed text-justify indent-8">
-                                            {property.description}
+                                            {displayDescription}
                                         </p>
                                     </div>
 

@@ -1,6 +1,7 @@
 export interface Property {
     id: string | number;
     title: string;
+    title_en?: string;
     location: string;
     price: number;
     type: 'sale' | 'rent_short' | 'rent_long' | 'luxury';
@@ -8,6 +9,7 @@ export interface Property {
     bedrooms: number;
     bathrooms: number;
     description: string;
+    description_en?: string;
     amenities: string[];
     features?: string[];
     media: {

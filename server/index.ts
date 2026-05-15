@@ -6,6 +6,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
+import aiRoutes from './routes/aiRoutes.js';
 import { initDB, pool } from './config/db.js';
 
 dotenv.config();
@@ -47,6 +48,7 @@ app.use('/uploads', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Serve Static Files (React App)
 const clientBuildPath = path.join(process.cwd(), 'dist');
@@ -78,6 +80,8 @@ const initializeApp = async () => {
         await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS parking_spots INTEGER DEFAULT 0');
         await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS features JSONB DEFAULT \'[]\'');
         await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS video_url VARCHAR(255)');
+        await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS title_en VARCHAR(255)');
+        await pool.query('ALTER TABLE properties ADD COLUMN IF NOT EXISTS description_en TEXT');
         console.log('Database schema verified and patched.');
     } catch (err) {
         console.error('Database initialization error:', err);

@@ -36,6 +36,7 @@ Este documento define los estándares de desarrollo, diseño y flujo de trabajo 
 4.  **Servicios API:** Centralizar llamadas en `src/services/api.ts` usando Axios con interceptores para el token JWT.
 5.  **Tipado:** TypeScript es obligatorio. Definir interfaces claras en `src/types/`.
 6.  **Accesibilidad y Semántica:** Todo campo de formulario (`input`, `select`, `textarea`) debe tener un `id` único y un atributo `name`. Las etiquetas (`label`) deben usar el atributo `htmlFor` apuntando al `id` del campo correspondiente para garantizar la accesibilidad y el auto-completado del navegador.
+7.  **Soporte Multi-lenguaje e IA:** Las propiedades deben ser bilingües. El sistema utiliza **DeepSeek AI** para la traducción automática de títulos y descripciones. El catálogo debe estar estructurado en un endpoint de contexto (`/api/ai/context`) para alimentar agentes de IA externos (como WhatsApp Bots).
 
 ---
 
