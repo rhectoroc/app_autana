@@ -196,8 +196,10 @@ export const CreateProperty = () => {
                             {/* Basic Info */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Title</label>
+                                    <label htmlFor="title" className="block text-gray-300 mb-2">Title</label>
                                     <input
+                                        id="title"
+                                        name="title"
                                         required
                                         value={formData.title}
                                         onChange={e => setFormData({ ...formData, title: e.target.value })}
@@ -205,8 +207,10 @@ export const CreateProperty = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Location</label>
+                                    <label htmlFor="location" className="block text-gray-300 mb-2">Location</label>
                                     <input
+                                        id="location"
+                                        name="location"
                                         required
                                         value={formData.location}
                                         onChange={e => setFormData({ ...formData, location: e.target.value })}
@@ -214,8 +218,10 @@ export const CreateProperty = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Price ($)</label>
+                                    <label htmlFor="price" className="block text-gray-300 mb-2">Price ($)</label>
                                     <input
+                                        id="price"
+                                        name="price"
                                         type="number"
                                         required
                                         value={formData.price}
@@ -224,8 +230,10 @@ export const CreateProperty = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Type</label>
+                                    <label htmlFor="type" className="block text-gray-300 mb-2">Type</label>
                                     <select
+                                        id="type"
+                                        name="type"
                                         value={formData.type}
                                         onChange={e => setFormData({ ...formData, type: e.target.value })}
                                         className="w-full bg-neutral-900 border border-neutral-700 rounded p-3 focus:border-[#D4AF37] focus:outline-none"
@@ -237,8 +245,10 @@ export const CreateProperty = () => {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Bedrooms</label>
+                                    <label htmlFor="bedrooms" className="block text-gray-300 mb-2">Bedrooms</label>
                                     <input
+                                        id="bedrooms"
+                                        name="bedrooms"
                                         type="number"
                                         required
                                         value={formData.bedrooms}
@@ -247,8 +257,10 @@ export const CreateProperty = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Bathrooms</label>
+                                    <label htmlFor="bathrooms" className="block text-gray-300 mb-2">Bathrooms</label>
                                     <input
+                                        id="bathrooms"
+                                        name="bathrooms"
                                         type="number"
                                         step="0.5"
                                         required
@@ -258,8 +270,10 @@ export const CreateProperty = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-300 mb-2">Area (m²)</label>
+                                    <label htmlFor="area_sqm" className="block text-gray-300 mb-2">Area (m²)</label>
                                     <input
+                                        id="area_sqm"
+                                        name="area_sqm"
                                         type="number"
                                         required
                                         value={formData.area_sqm}
@@ -268,8 +282,10 @@ export const CreateProperty = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37] mb-2">Parking</label>
+                                    <label htmlFor="parking_spots" className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37] mb-2">Parking</label>
                                     <input
+                                        id="parking_spots"
+                                        name="parking_spots"
                                         type="number"
                                         required
                                         value={formData.parking_spots}
@@ -281,8 +297,10 @@ export const CreateProperty = () => {
 
                             {/* Description */}
                             <div>
-                                <label className="block text-gray-300 mb-2">Description</label>
+                                <label htmlFor="description" className="block text-gray-300 mb-2">Description</label>
                                 <textarea
+                                    id="description"
+                                    name="description"
                                     rows={4}
                                     value={formData.description}
                                     onChange={e => setFormData({ ...formData, description: e.target.value })}
@@ -292,8 +310,9 @@ export const CreateProperty = () => {
 
                             {/* Features */}
                             <div>
-                                <label className="block text-gray-300 mb-2">Features (Type and press Enter)</label>
+                                <label htmlFor="feature-input" className="block text-gray-300 mb-2">Features (Type and press Enter)</label>
                                 <input
+                                    id="feature-input"
                                     value={featureInput}
                                     onChange={e => setFeatureInput(e.target.value)}
                                     onKeyDown={handleFeaturesKeyDown}
