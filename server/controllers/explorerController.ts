@@ -76,3 +76,52 @@ export const getStorageStats = async (req: Request, res: Response): Promise<void
         res.status(500).json({ message: 'Error retrieving storage stats', error: err.message });
     }
 };
+
+export const deleteFile = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { folder, filename } = req.body;
+        if (!filename) {
+            res.status(400).json({ message: 'Filename is required' });
+            return;
+        }
+
+        const filePath = folder 
+            ? path.join(process.cwd(), 'uploads', folder, filename)
+            : path.join(process.cwd(), 'uploads', filename);
+
+        if (!fs.existsSync(filePath)) {
+            res.status(404).json({ message: 'File not found' });
+            return;
+        }
+
+        fs.unlinkSync(filePath);
+        res.json({ message: 'File deleted successfully' });
+    } catch (err: any) {
+        console.error('Delete File Error:', err);
+        res.status(500).json({ message: 'Error deleting file', error: err.message });
+    }
+};
+
+export const deleteFolder = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { folder } = req.body;
+        if (!folder) {
+            res.status(400).json({ message: 'Folder name is required' });
+            return;
+        }
+
+        const folderPath = path.join(process.cwd(), 'uploads', folder);
+
+        if (!fs.existsSync(folderPath)) {
+            res.status(404).json({ message: 'Folder not found' });
+            return;
+        }
+
+        // Use recursive deletion for safety
+        fs.rmSync(folderPath, { recursive: true, force: true });
+        res.json({ message: 'Folder deleted successfully' });
+    } catch (err: any) {
+        console.error('Delete Folder Error:', err);
+        res.status(500).json({ message: 'Error deleting folder', error: err.message });
+    }
+};

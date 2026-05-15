@@ -28,6 +28,7 @@ export const Settings = () => {
     const [loading, setLoading] = useState(true);
     const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
     const [searchTerm, setSearchTerm] = useState('');
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const { showToast } = useToast();
 
     const fetchStats = async () => {
@@ -56,12 +57,43 @@ export const Settings = () => {
         setExpandedFolders(next);
     };
 
+    const handleDeleteFile = async (folder: string | null, filename: string) => {
+        if (!window.confirm(`Are you sure you want to delete ${filename}? This action cannot be undone.`)) return;
+
+        try {
+            await api.post('/explorer/delete-file', { folder, filename });
+            showToast('File deleted successfully', 'success');
+            fetchStats(); // Refresh
+        } catch (err) {
+            showToast('Failed to delete file', 'error');
+        }
+    };
+
+    const handleDeleteFolder = async (folder: string) => {
+        if (!window.confirm(`WARNING: This will delete the entire folder "${folder}" and ALL its content. Proceed?`)) return;
+
+        try {
+            await api.post('/explorer/delete-folder', { folder });
+            showToast('Folder deleted successfully', 'success');
+            fetchStats(); // Refresh
+        } catch (err) {
+            showToast('Failed to delete folder', 'error');
+        }
+    };
+
     const formatSize = (bytes: number) => {
         if (bytes === 0) return '0 B';
         const k = 1024;
         const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const getFileUrl = (folder: string | null, filename: string) => {
+        const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        return folder 
+            ? `${baseUrl}/uploads/${folder}/${filename}`
+            : `${baseUrl}/uploads/${filename}`;
     };
 
     const filteredFolders = stats?.folders.filter(f => 
@@ -110,7 +142,7 @@ export const Settings = () => {
                                 </div>
                                 <div className="text-3xl font-serif text-white">{stats ? formatSize(stats.totalSize) : '0 MB'}</div>
                                 <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                                    <div className="bg-[#D4AF37] h-full w-[15%] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.5)]"></div>
+                                    <div className="bg-[#D4AF37] h-full w-[15%] rounded-full shadow-[0_0_10px_rgba(212,175,55,0.2)]"></div>
                                 </div>
                             </div>
 
@@ -173,34 +205,58 @@ export const Settings = () => {
                                         {/* Property Folders */}
                                         {filteredFolders.map((folder) => (
                                             <div key={folder.name} className="group">
-                                                <div 
-                                                    onClick={() => toggleFolder(folder.name)}
-                                                    className={`flex items-center p-3 rounded-xl cursor-pointer transition-all ${expandedFolders.has(folder.name) ? 'bg-white/10' : 'hover:bg-white/5'}`}
-                                                >
-                                                    {expandedFolders.has(folder.name) ? <ChevronDown className="w-4 h-4 mr-3 text-gray-500" /> : <ChevronRight className="w-4 h-4 mr-3 text-gray-500" />}
-                                                    <Folder className={`w-5 h-5 mr-3 ${expandedFolders.has(folder.name) ? 'text-[#D4AF37]' : 'text-gray-400'}`} />
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="flex items-center gap-2">
-                                                            <span className="font-medium text-sm truncate">{folder.name}</span>
-                                                            <span className="text-[10px] bg-[#D4AF37]/10 text-[#D4AF37] px-1.5 rounded font-bold">{folder.fileCount} items</span>
+                                                <div className="flex items-center p-3 rounded-xl hover:bg-white/5 transition-all">
+                                                    <div 
+                                                        onClick={() => toggleFolder(folder.name)}
+                                                        className="flex items-center flex-1 min-w-0 cursor-pointer"
+                                                    >
+                                                        {expandedFolders.has(folder.name) ? <ChevronDown className="w-4 h-4 mr-3 text-gray-500" /> : <ChevronRight className="w-4 h-4 mr-3 text-gray-500" />}
+                                                        <Folder className={`w-5 h-5 mr-3 ${expandedFolders.has(folder.name) ? 'text-[#D4AF37]' : 'text-gray-400'}`} />
+                                                        <div className="flex-1 min-w-0">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-medium text-sm truncate">{folder.name}</span>
+                                                                <span className="text-[10px] bg-[#D4AF37]/10 text-[#D4AF37] px-1.5 rounded font-bold">{folder.fileCount} items</span>
+                                                            </div>
                                                         </div>
+                                                        <div className="text-xs text-gray-500 font-mono pr-4">{formatSize(folder.size)}</div>
                                                     </div>
-                                                    <div className="text-xs text-gray-500 font-mono pr-4">{formatSize(folder.size)}</div>
+                                                    
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); handleDeleteFolder(folder.name); }}
+                                                        className="p-2 text-gray-600 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                                                        title="Delete entire folder"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
                                                 </div>
 
                                                 {expandedFolders.has(folder.name) && (
                                                     <div className="ml-12 mt-1 space-y-1 pb-4 animate-in slide-in-from-top-2 duration-300">
                                                         {folder.files.map((file) => (
                                                             <div key={file.name} className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 group/file">
-                                                                <div className="flex items-center flex-1 min-w-0">
+                                                                <div 
+                                                                    className="flex items-center flex-1 min-w-0 cursor-pointer"
+                                                                    onClick={() => setPreviewUrl(getFileUrl(folder.name, file.name))}
+                                                                >
                                                                     <File className="w-4 h-4 mr-3 text-gray-600" />
                                                                     <span className="text-xs text-gray-400 truncate pr-4">{file.name}</span>
                                                                 </div>
-                                                                <div className="flex items-center gap-6">
+                                                                <div className="flex items-center gap-4">
                                                                     <span className="text-[10px] text-gray-600 font-mono">{formatSize(file.size)}</span>
-                                                                    <button className="opacity-0 group-hover/file:opacity-100 p-1 text-gray-500 hover:text-[#D4AF37] transition-all">
-                                                                        <ExternalLink className="w-3.5 h-3.5" />
-                                                                    </button>
+                                                                    <div className="flex items-center opacity-0 group-hover/file:opacity-100 transition-all">
+                                                                        <button 
+                                                                            onClick={() => setPreviewUrl(getFileUrl(folder.name, file.name))}
+                                                                            className="p-1.5 text-gray-500 hover:text-[#D4AF37]"
+                                                                        >
+                                                                            <ExternalLink className="w-3.5 h-3.5" />
+                                                                        </button>
+                                                                        <button 
+                                                                            onClick={() => handleDeleteFile(folder.name, file.name)}
+                                                                            className="p-1.5 text-gray-500 hover:text-red-500"
+                                                                        >
+                                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                                        </button>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         ))}
@@ -219,15 +275,29 @@ export const Settings = () => {
                                                 <div className="space-y-1">
                                                     {stats?.rootFiles.map((file) => (
                                                         <div key={file.name} className="flex items-center justify-between p-3 rounded-xl hover:bg-white/5 group/file">
-                                                            <div className="flex items-center flex-1 min-w-0">
+                                                            <div 
+                                                                className="flex items-center flex-1 min-w-0 cursor-pointer"
+                                                                onClick={() => setPreviewUrl(getFileUrl(null, file.name))}
+                                                            >
                                                                 <File className="w-4 h-4 mr-3 text-[#D4AF37]/50" />
                                                                 <span className="text-xs text-gray-400 truncate pr-4">{file.name}</span>
                                                             </div>
-                                                            <div className="flex items-center gap-6">
+                                                            <div className="flex items-center gap-4">
                                                                 <span className="text-[10px] text-gray-600 font-mono">{formatSize(file.size)}</span>
-                                                                <button className="opacity-0 group-hover/file:opacity-100 p-1 text-gray-500 hover:text-red-500 transition-all">
-                                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                                </button>
+                                                                <div className="flex items-center opacity-0 group-hover/file:opacity-100 transition-all">
+                                                                    <button 
+                                                                        onClick={() => setPreviewUrl(getFileUrl(null, file.name))}
+                                                                        className="p-1.5 text-gray-500 hover:text-[#D4AF37]"
+                                                                    >
+                                                                        <ExternalLink className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => handleDeleteFile(null, file.name)}
+                                                                        className="p-1.5 text-gray-500 hover:text-red-500"
+                                                                    >
+                                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -256,6 +326,39 @@ export const Settings = () => {
                     </div>
                 )}
             </div>
+
+            {/* Preview Modal */}
+            {previewUrl && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 animate-in fade-in duration-300">
+                    <div className="absolute inset-0 bg-black/90 backdrop-blur-sm" onClick={() => setPreviewUrl(null)}></div>
+                    <div className="relative z-10 max-w-5xl w-full max-h-full bg-neutral-900 rounded-3xl overflow-hidden border border-white/10 shadow-2xl flex flex-col">
+                        <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                            <span className="text-xs text-gray-400 font-mono truncate mr-4">{previewUrl.split('/').pop()}</span>
+                            <button 
+                                onClick={() => setPreviewUrl(null)}
+                                className="bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="flex-1 overflow-hidden flex items-center justify-center bg-black/50">
+                            {previewUrl.toLowerCase().endsWith('.webm') || previewUrl.toLowerCase().endsWith('.mp4') ? (
+                                <video src={previewUrl} controls autoPlay className="max-w-full max-h-full" />
+                            ) : (
+                                <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
+                            )}
+                        </div>
+                        <div className="p-4 bg-white/5 flex justify-center">
+                            <button 
+                                onClick={() => setPreviewUrl(null)}
+                                className="px-8 py-2 bg-white/10 hover:bg-white/20 rounded-full text-sm font-medium transition-all"
+                            >
+                                Close Preview
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             
             <style>{`
                 .custom-scrollbar::-webkit-scrollbar {
@@ -275,3 +378,9 @@ export const Settings = () => {
         </div>
     );
 };
+
+const X = ({ className }: { className?: string }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+    </svg>
+);
