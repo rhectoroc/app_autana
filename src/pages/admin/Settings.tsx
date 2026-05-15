@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Folder, File, HardDrive, Search, ChevronRight, ChevronDown, Package, ExternalLink, Trash2, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
 import { useToast } from '../../context/ToastContext';
@@ -125,9 +126,9 @@ export const Settings = () => {
             : `${baseUrl}/uploads/${filename}`;
     };
 
-    const filteredFolders = stats?.folders.filter(f => 
+    const filteredFolders = stats?.folders.filter((f: StorageFolder) => 
         f.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        f.files.some(file => file.name.toLowerCase().includes(searchTerm.toLowerCase()))
+        f.files.some((file: StorageFile) => file.name.toLowerCase().includes(searchTerm.toLowerCase()))
     ) || [];
 
     return (
@@ -190,7 +191,7 @@ export const Settings = () => {
                                     <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Total Assets</span>
                                 </div>
                                 <div className="text-3xl font-serif text-white">
-                                    {(stats?.folders.reduce((acc, f) => acc + f.fileCount, 0) || 0) + (stats?.rootFiles.length || 0)}
+                                    {(stats?.folders.reduce((acc: number, f: StorageFolder) => acc + f.fileCount, 0) || 0) + (stats?.rootFiles.length || 0)}
                                 </div>
                                 <p className="text-xs text-gray-500 mt-2">Images and videos combined</p>
                             </div>
