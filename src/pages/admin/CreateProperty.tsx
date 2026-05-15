@@ -330,7 +330,7 @@ export const CreateProperty = () => {
                             </div>
                              {/* Image Upload */}
                             <div className="space-y-4">
-                                <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 20 Images + 1 Video)</label>
+                                <label htmlFor="media-assets" className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 20 Images + 1 Video)</label>
                                 <div 
                                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                                     onDragLeave={() => setIsDragging(false)}
@@ -349,6 +349,8 @@ export const CreateProperty = () => {
                                     }`}
                                 >
                                     <input
+                                        id="media-assets"
+                                        name="media-assets"
                                         type="file"
                                         multiple
                                         accept="image/*"
@@ -411,9 +413,11 @@ export const CreateProperty = () => {
 
                             {/* Video Upload */}
                             <div className="mt-8">
-                                <label className="block text-gray-300 mb-2">Video (Optional - Max 1)</label>
+                                <label htmlFor="video-upload" className="block text-gray-300 mb-2">Video (Optional - Max 1)</label>
                                 <div className="border-2 border-dashed border-neutral-600 rounded-lg p-6 text-center hover:border-[#D4AF37] transition-colors relative">
                                     <input
+                                        id="video-upload"
+                                        name="video-upload"
                                         type="file"
                                         accept="video/*"
                                         onChange={e => setSelectedVideo(e.target.files?.[0] || null)}

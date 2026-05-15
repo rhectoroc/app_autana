@@ -385,7 +385,7 @@ export const EditProperty = () => {
                             </div>
                              {/* Image Upload */}
                             <div className="space-y-4">
-                                <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 20 Images + 1 Video)</label>
+                                <label htmlFor="media-assets" className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 20 Images + 1 Video)</label>
                                 <div 
                                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                                     onDragLeave={() => setIsDragging(false)}
@@ -404,6 +404,8 @@ export const EditProperty = () => {
                                     }`}
                                 >
                                     <input
+                                        id="media-assets"
+                                        name="media-assets"
                                         type="file"
                                         multiple
                                         accept="image/*"
