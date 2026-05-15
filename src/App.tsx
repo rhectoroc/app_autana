@@ -10,10 +10,10 @@ const Overview = lazy(() => import('./pages/admin/Overview').then(module => ({ d
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard').then(module => ({ default: module.AdminDashboard })));
 const CreateProperty = lazy(() => import('./pages/admin/CreateProperty').then(module => ({ default: module.CreateProperty })));
 const EditProperty = lazy(() => import('./pages/admin/EditProperty').then(module => ({ default: module.EditProperty })));
+const Settings = lazy(() => import('./pages/admin/Settings').then(module => ({ default: module.Settings })));
 
 // Placeholders for new pages
 const UsersPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">User Management</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
-const SettingsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">System Settings</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
 const ReportsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Reports & Analytics</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
 
 import { ToastProvider } from './context/ToastContext';
@@ -48,7 +48,7 @@ function App() {
           <Route path="edit/:id" element={<EditProperty />} />
           <Route path="users" element={<UsersPage />} />
           <Route path="reports" element={<ReportsPage />} />
-          <Route path="settings" element={<SettingsPage />} />
+          <Route path="settings" element={<Settings />} />
         </Route>
         
         {/* Fallback */}

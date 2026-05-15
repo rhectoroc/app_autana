@@ -16,8 +16,18 @@ export const processImage = async (inputPath: string, originalName: string, inde
     const date = new Date();
     const timestamp = date.getTime();
     const suffix = index > 0 ? String(index).padStart(2, '0') : Math.random().toString(36).substring(2, 6);
-    const newFilename = `prop_${propertyId}_${timestamp}_${suffix}.webp`;
-    const outputPath = path.join(process.cwd(), 'uploads', newFilename);
+    const newFilename = `img_${timestamp}_${suffix}.webp`;
+    
+    // Directory structure: uploads/prop_[id]/[filename]
+    const propertyDirName = `prop_${propertyId}`;
+    const propertyDirPath = path.join(process.cwd(), 'uploads', propertyDirName);
+    
+    if (!fs.existsSync(propertyDirPath)) {
+        fs.mkdirSync(propertyDirPath, { recursive: true });
+    }
+
+    const outputPath = path.join(propertyDirPath, newFilename);
+    const relativePath = `${propertyDirName}/${newFilename}`;
 
     // Path to watermark
     const watermarkPath = path.join(process.cwd(), 'public', 'logo', 'autana_watermark.png');
@@ -71,7 +81,7 @@ export const processImage = async (inputPath: string, originalName: string, inde
         }
 
         return {
-            filename: newFilename
+            filename: relativePath
         };
     } catch (error) {
         console.error('CRITICAL ERROR processing image:', error);

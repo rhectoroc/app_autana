@@ -14,18 +14,27 @@ const isFFmpegAvailable = (): Promise<boolean> => {
     });
 };
 
-export const processVideo = async (inputPath: string): Promise<string> => {
+export const processVideo = async (inputPath: string, propertyId: string | number = 'anon'): Promise<string> => {
     const filename = `video-${Date.now()}.webm`;
-    const outputPath = path.join(process.cwd(), 'uploads', filename);
+    const propertyDirName = `prop_${propertyId}`;
+    const propertyDirPath = path.join(process.cwd(), 'uploads', propertyDirName);
+
+    if (!fs.existsSync(propertyDirPath)) {
+        fs.mkdirSync(propertyDirPath, { recursive: true });
+    }
+
+    const outputPath = path.join(propertyDirPath, filename);
+    const relativePath = `${propertyDirName}/${filename}`;
 
     const available = await isFFmpegAvailable();
 
     if (!available) {
         console.warn('FFmpeg not found. Skipping video conversion, just renaming.');
         const fallbackFilename = `video-${Date.now()}${path.extname(inputPath)}`;
-        const fallbackPath = path.join(process.cwd(), 'uploads', fallbackFilename);
+        const fallbackPath = path.join(propertyDirPath, fallbackFilename);
+        const fallbackRelativePath = `${propertyDirName}/${fallbackFilename}`;
         fs.renameSync(inputPath, fallbackPath);
-        return fallbackFilename;
+        return fallbackRelativePath;
     }
 
     return new Promise((resolve, reject) => {
@@ -37,15 +46,16 @@ export const processVideo = async (inputPath: string): Promise<string> => {
             .on('end', () => {
                 // Delete original temp file
                 if (fs.existsSync(inputPath)) fs.unlinkSync(inputPath);
-                resolve(filename);
+                resolve(relativePath);
             })
             .on('error', (err) => {
                 console.error('FFmpeg error:', err);
                 // Fallback to original if conversion fails
                 const fallbackFilename = `video-err-${Date.now()}${path.extname(inputPath)}`;
-                const fallbackPath = path.join(process.cwd(), 'uploads', fallbackFilename);
+                const fallbackPath = path.join(propertyDirPath, fallbackFilename);
+                const fallbackRelativePath = `${propertyDirName}/${fallbackFilename}`;
                 fs.renameSync(inputPath, fallbackPath);
-                resolve(fallbackFilename);
+                resolve(fallbackRelativePath);
             })
             .save(outputPath);
     });

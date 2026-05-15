@@ -14,28 +14,33 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
         const { title, description, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, status } = req.body;
         const parsedFeatures = typeof features === 'string' ? JSON.parse(features) : features;
 
-        // Handle Video
+        // Auto-translate using DeepSeek
+        const { title_en, description_en } = await translateProperty(title, description);
+
+        // 1. Create property first to get ID
+        const propResult = await client.query(
+            `INSERT INTO properties (title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+             RETURNING id`,
+            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available']
+        );
+
+        const propertyId = propResult.rows[0].id;
+
+        // 2. Handle Video (now we have propertyId)
         let videoUrl = null;
         const files = req.files as { [fieldname: string]: Express.Multer.File[] };
         
         if (files && files.video && files.video[0]) {
             const videoFile = files.video[0];
-            const processedVideoName = await processVideo(videoFile.path);
+            const processedVideoName = await processVideo(videoFile.path, propertyId);
             videoUrl = `/uploads/${processedVideoName}`;
+            
+            // Update property with video URL
+            await client.query(`UPDATE properties SET video_url = $1 WHERE id = $2`, [videoUrl, propertyId]);
         }
 
-        // Auto-translate using DeepSeek
-        const { title_en, description_en } = await translateProperty(title, description);
-
-        const propResult = await client.query(
-            `INSERT INTO properties (title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, video_url, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
-             RETURNING id`,
-            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), videoUrl, status || 'available']
-        );
-
-        const propertyId = propResult.rows[0].id;
-
+        // 3. Handle Images
         if (files && files.images) {
             const imageFiles = files.images;
             for (let i = 0; i < imageFiles.length; i++) {
@@ -193,7 +198,7 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
 
         if (files && files.video && files.video[0]) {
             const videoFile = files.video[0];
-            const processedVideoName = await processVideo(videoFile.path);
+            const processedVideoName = await processVideo(videoFile.path, id);
             videoUpdateSql = ', video_url = $12';
             videoParams.push(`/uploads/${processedVideoName}`);
         }

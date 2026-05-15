@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
+import explorerRoutes from './routes/explorerRoutes.js';
 import { initDB, pool } from './config/db.js';
 
 dotenv.config();
@@ -37,7 +38,6 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Static files
-// Static files
 app.use('/uploads', express.static(uploadsDir));
 // If file not found in uploads, return 404 immediately to avoid falling back to index.html
 app.use('/uploads', (req, res) => {
@@ -45,10 +45,10 @@ app.use('/uploads', (req, res) => {
 });
 
 // Routes
-// Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/explorer', explorerRoutes);
 
 // Serve Static Files (React App)
 const clientBuildPath = path.join(process.cwd(), 'dist');
