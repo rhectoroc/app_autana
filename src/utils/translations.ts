@@ -317,12 +317,12 @@ export const translations = {
             viewDetails: "Ver Detalles"
         },
         login: {
-            title: "Acceso Admin",
-            email: "Correo Electrónico",
-            password: "Contraseña",
-            signIn: "Iniciar Sesión",
-            back: "Volver a Autana",
-            error: "Credenciales inválidas"
+            title: "Admin Access",
+            email: "Email Address",
+            password: "Password",
+            signIn: "Sign In",
+            back: "Back to Home",
+            error: "Invalid credentials"
         }
     }
 };

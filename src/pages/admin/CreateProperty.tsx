@@ -6,9 +6,11 @@ import { compressImage } from '../../utils/imageOptimizer';
 import { PropertyCard } from '../../components/PropertyCard';
 import { PropertyDetailsModal } from '../../components/PropertyDetailsModal';
 import type { Property } from '../../types/property';
+import { useToast } from '../../context/ToastContext';
 
 export const CreateProperty = () => {
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const [loading, setLoading] = useState(false);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
     const [formData, setFormData] = useState({
@@ -53,8 +55,8 @@ export const CreateProperty = () => {
     const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
             const files = Array.from(e.target.files);
-            if (selectedImages.length + files.length > 12) {
-                alert('Maximum 12 images allowed');
+            if (selectedImages.length + files.length > 20) {
+                showToast('Maximum 20 images allowed', 'warning');
                 return;
             }
 
@@ -73,7 +75,7 @@ export const CreateProperty = () => {
                 setPreviews([...previews, ...newPreviews]);
             } catch (error) {
                 console.error('Image processing failed', error);
-                alert('Failed to process some images.');
+                showToast('Failed to process some images.', 'error');
             } finally {
                 setIsProcessing(false);
             }
@@ -106,7 +108,12 @@ export const CreateProperty = () => {
 
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
-            data.append(key, value);
+            // Ensure numeric values are numbers, even if they come from inputs
+            if (['price', 'bedrooms', 'bathrooms', 'area_sqm', 'parking_spots'].includes(key)) {
+                data.append(key, String(Number(value) || 0));
+            } else {
+                data.append(key, value);
+            }
         });
         data.append('features', JSON.stringify(features));
         // Status defaults to available/Active
@@ -128,11 +135,11 @@ export const CreateProperty = () => {
                         setUploadProgress(percentCompleted);
                     }
                 }
-            });
+            showToast('Property created successfully!', 'success');
             navigate('/admin/dashboard');
         } catch (err) {
             console.error('Upload failed', err);
-            alert('Failed to create property. Check console for details.');
+            showToast('Failed to create property. Check connection.', 'error');
         } finally {
             setLoading(false);
         }
@@ -156,7 +163,7 @@ export const CreateProperty = () => {
             id: `p-${i}`,
             type: 'image',
             url: url
-        })) : [{ id: 'placeholder', type: 'image', url: 'https://via.placeholder.com/400x300?text=No+Image' }],
+        })) : [{ id: 'placeholder', type: 'image', url: '/logo/logoOriginal.png' }], // Use local logo as premium fallback
         status: 'available'
     };
 
@@ -223,7 +230,7 @@ export const CreateProperty = () => {
                                         className="w-full bg-neutral-900 border border-neutral-700 rounded p-3 focus:border-[#D4AF37] focus:outline-none"
                                     >
                                         <option value="sale">For Sale</option>
-                                        <option value="luxury">Luxury / De Lujo</option>
+                                        <option value="luxury">Luxury</option>
                                         <option value="rent_short">Short Term Rent</option>
                                         <option value="rent_long">Long Term Rent</option>
                                     </select>
@@ -303,7 +310,7 @@ export const CreateProperty = () => {
                             </div>
                              {/* Image Upload */}
                             <div className="space-y-4">
-                                <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 12)</label>
+                                <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 20 Images + 1 Video)</label>
                                 <div 
                                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                                     onDragLeave={() => setIsDragging(false)}
@@ -332,8 +339,8 @@ export const CreateProperty = () => {
                                         {isProcessing ? (
                                             <div className="flex flex-col items-center">
                                                 <div className="w-16 h-16 rounded-full border-4 border-t-[#D4AF37] border-white/10 animate-spin mb-4"></div>
-                                                <p className="text-lg font-medium text-[#D4AF37] animate-pulse">Optimizing images...</p>
-                                                <p className="text-sm text-gray-500 mt-1">Applying luxury standards to your media</p>
+                                                <p className="text-lg font-medium text-[#D4AF37] animate-pulse">Applying luxury standards...</p>
+                                                <p className="text-sm text-gray-500 mt-1">Converting to WebP & Watermarking</p>
                                             </div>
                                         ) : (
                                             <>

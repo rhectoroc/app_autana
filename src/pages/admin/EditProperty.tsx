@@ -6,10 +6,12 @@ import { compressImage } from '../../utils/imageOptimizer';
 import { PropertyCard } from '../../components/PropertyCard';
 import { PropertyDetailsModal } from '../../components/PropertyDetailsModal';
 import type { Property } from '../../types/property';
+import { useToast } from '../../context/ToastContext';
 
 export const EditProperty = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
+    const { showToast } = useToast();
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -19,7 +21,7 @@ export const EditProperty = () => {
     const baseUrl = (import.meta.env.VITE_API_URL || '').replace(/\/api$/, '');
 
     const getImageUrl = (url: string) => {
-        if (!url) return 'https://via.placeholder.com/400x300?text=No+Image';
+        if (!url) return '/logo/logoOriginal.png';
         if (url.startsWith('http') || url.startsWith('blob:')) return url;
         const cleanPath = url.startsWith('/') ? url : `/${url}`;
         return `${baseUrl}${cleanPath}`;
@@ -78,7 +80,7 @@ export const EditProperty = () => {
             setLoading(false);
         } catch (err) {
             console.error('Failed to fetch property', err);
-            alert('Failed to load property details');
+            showToast('Failed to load property details', 'error');
             navigate('/admin/dashboard');
         }
     }, [id, navigate]);
@@ -105,8 +107,8 @@ export const EditProperty = () => {
         if (e.target.files) {
             const files = Array.from(e.target.files);
             const totalImages = existingImages.length + newImages.length + files.length;
-            if (totalImages > 12) {
-                alert('Maximum 12 images allowed');
+            if (totalImages > 20) {
+                showToast('Maximum 20 images allowed', 'warning');
                 return;
             }
 
@@ -125,7 +127,7 @@ export const EditProperty = () => {
                 setNewPreviews([...newPreviews, ...incomingPreviews]);
             } catch (error) {
                 console.error('Image processing failed', error);
-                alert('Failed to process some images.');
+                showToast('Failed to process some images.', 'error');
             } finally {
                 setIsProcessing(false);
             }
@@ -149,7 +151,11 @@ export const EditProperty = () => {
 
         const data = new FormData();
         Object.entries(formData).forEach(([key, value]) => {
-            data.append(key, value);
+            if (['price', 'bedrooms', 'bathrooms', 'area_sqm', 'parking_spots'].includes(key)) {
+                data.append(key, String(Number(value) || 0));
+            } else {
+                data.append(key, value);
+            }
         });
 
         data.append('features', JSON.stringify(features));
@@ -172,11 +178,11 @@ export const EditProperty = () => {
                         setUploadProgress(percentCompleted);
                     }
                 }
-            });
+            showToast('Property updated successfully!', 'success');
             navigate('/admin/dashboard');
         } catch (err) {
             console.error('Update failed', err);
-            alert('Failed to update property. Check console.');
+            showToast('Failed to update property.', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -202,7 +208,7 @@ export const EditProperty = () => {
         description: formData.description,
         amenities: features,
         features: features,
-        media: previewMedia.length > 0 ? previewMedia : [{ id: 'placeholder', type: 'image', url: 'https://via.placeholder.com/400x300?text=No+Image' }],
+        media: previewMedia.length > 0 ? previewMedia : [{ id: 'placeholder', type: 'image', url: '/logo/logoOriginal.png' }],
     };
 
     if (loading) return <div className="min-h-screen flex items-center justify-center bg-neutral-900 text-[#D4AF37]"><Loader className="animate-spin w-10 h-10" /></div>;
@@ -263,7 +269,7 @@ export const EditProperty = () => {
                                         className="w-full bg-neutral-900 border border-neutral-700 rounded p-3 focus:border-[#D4AF37] focus:outline-none"
                                     >
                                         <option value="sale">For Sale</option>
-                                        <option value="luxury">Luxury / De Lujo</option>
+                                        <option value="luxury">Luxury</option>
                                         <option value="rent_short">Short Term Rent</option>
                                         <option value="rent_long">Long Term Rent</option>
                                     </select>
@@ -357,7 +363,7 @@ export const EditProperty = () => {
                             </div>
                              {/* Image Upload */}
                             <div className="space-y-4">
-                                <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 12)</label>
+                                <label className="block text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Media Assets (Max 20 Images + 1 Video)</label>
                                 <div 
                                     onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                                     onDragLeave={() => setIsDragging(false)}
@@ -386,8 +392,8 @@ export const EditProperty = () => {
                                         {isProcessing ? (
                                             <div className="flex flex-col items-center">
                                                 <div className="w-16 h-16 rounded-full border-4 border-t-[#D4AF37] border-white/10 animate-spin mb-4"></div>
-                                                <p className="text-lg font-medium text-[#D4AF37] animate-pulse">Optimizing images...</p>
-                                                <p className="text-sm text-gray-500 mt-1">Applying luxury standards to your media</p>
+                                                <p className="text-lg font-medium text-[#D4AF37] animate-pulse">Applying luxury standards...</p>
+                                                <p className="text-sm text-gray-500 mt-1">Converting to WebP & Watermarking</p>
                                             </div>
                                         ) : (
                                             <>

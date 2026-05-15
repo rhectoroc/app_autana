@@ -16,9 +16,12 @@ const UsersPage = () => <div className="text-white pt-20 text-center"><h1 classN
 const SettingsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Configuración del Sistema</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Próximamente...</p></div>;
 const ReportsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Reportes y Estadísticas</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Próximamente...</p></div>;
 
+import { ToastProvider } from './context/ToastContext';
+
 function App() {
   return (
-    <Suspense fallback={
+    <ToastProvider>
+      <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-off-white">
         <Loader2 className="w-8 h-8 animate-spin text-gold-500" />
       </div>
@@ -51,7 +54,8 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
       </Routes>
-    </Suspense>
+      </Suspense>
+    </ToastProvider>
   );
 }
 

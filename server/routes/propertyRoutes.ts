@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-const uploadFields = upload.fields([{ name: 'images', maxCount: 10 }, { name: 'video', maxCount: 1 }]);
+const uploadFields = upload.fields([{ name: 'images', maxCount: 20 }, { name: 'video', maxCount: 1 }]);
 
 router.get('/', getProperties);
 router.get('/:id', getPropertyById);

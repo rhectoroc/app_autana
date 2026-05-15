@@ -5,10 +5,10 @@ import { motion } from 'framer-motion';
 export const AdminLayout = () => {
     return (
         <div className="min-h-screen bg-[#050505] flex">
-            {/* Sidebar Fijo */}
+            {/* Sticky Sidebar */}
             <Sidebar />
 
-            {/* Contenido Principal */}
+            {/* Main Content Area */}
             <main className="flex-1 ml-72 relative">
                 {/* Fondo Decorativo */}
                 <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none z-0">

@@ -23,10 +23,10 @@ export const Sidebar = () => {
 
     const menuItems = [
         { icon: LayoutDashboard, label: 'Overview', path: '/admin/dashboard' },
-        { icon: Home, label: 'Propiedades', path: '/admin/properties' },
-        { icon: Users, label: 'Usuarios', path: '/admin/users' },
-        { icon: BarChart3, label: 'Reportes', path: '/admin/reports' },
-        { icon: Settings, label: 'Configuración', path: '/admin/settings' },
+        { icon: Home, label: 'Properties', path: '/admin/properties' },
+        { icon: Users, label: 'Users', path: '/admin/users' },
+        { icon: BarChart3, label: 'Reports', path: '/admin/reports' },
+        { icon: Settings, label: 'Settings', path: '/admin/settings' },
     ];
 
     return (
@@ -80,14 +80,14 @@ export const Sidebar = () => {
                     className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-gray-500 hover:text-white hover:bg-white/5 transition-all text-sm group"
                 >
                     <ExternalLink className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                    <span>Ver Web Pública</span>
+                    <span>View Public Site</span>
                 </button>
                 <button 
                     onClick={handleLogout}
                     className="w-full flex items-center gap-4 px-4 py-3 rounded-xl text-red-500/70 hover:text-red-500 hover:bg-red-500/10 transition-all text-sm font-bold group"
                 >
                     <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                    <span>Cerrar Sesión</span>
+                    <span>Logout</span>
                 </button>
             </div>
         </aside>

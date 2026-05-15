@@ -23,25 +23,41 @@ export const processImage = async (inputPath: string, originalName: string, inde
     const outputPath = path.join(process.cwd(), 'uploads', newFilename);
 
     // Path to watermark
-    const watermarkPath = path.join(process.cwd(), 'public', 'logo', 'logoOriginalSinFondo.png');
+    const watermarkPath = path.join(process.cwd(), 'public', 'logo', 'autana_watermark.png');
 
     try {
+        // Get metadata to calculate proportional watermark size
+        const metadata = await sharp(inputPath).metadata();
+        const width = metadata.width || 1920;
+        
         let pipeline = sharp(inputPath)
             .resize({ width: 1920, height: 1080, fit: 'inside', withoutEnlargement: true })
-            .webp({ quality: 80, effort: 6 });
+            .webp({ quality: 85, effort: 6 });
 
         // Check if watermark exists before attempting to composite
         if (fs.existsSync(watermarkPath)) {
             try {
+                // Resize watermark to be ~20% of the main image width and add transparency
+                const watermarkWidth = Math.round(width * 0.2);
+                const resizedWatermark = await sharp(watermarkPath)
+                    .resize({ width: watermarkWidth })
+                    .composite([{
+                        input: Buffer.from([255, 255, 255, 178]), // ~70% opacity white mask (255 * 0.7 = 178)
+                        raw: { width: 1, height: 1, channels: 4 },
+                        tile: true,
+                        blend: 'dest-in'
+                    }])
+                    .toBuffer();
+
                 pipeline = pipeline.composite([
                     {
-                        input: watermarkPath,
+                        input: resizedWatermark,
                         gravity: 'southeast',
                         blend: 'over',
                     }
                 ]);
             } catch (error) {
-                console.warn('Failed to load watermark image:', error);
+                console.warn('Failed to process watermark image:', error);
             }
         }
 

@@ -3,6 +3,7 @@ import { pool } from '../config/db.js';
 import fs from 'fs';
 import path from 'path';
 import { processImage } from '../utils/imageProcessor.js';
+import { processVideo } from '../utils/videoProcessor.js';
 
 export const createProperty = async (req: Request, res: Response): Promise<void> => {
     const client = await pool.connect();
@@ -18,11 +19,8 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
         
         if (files && files.video && files.video[0]) {
             const videoFile = files.video[0];
-            const newVideoName = videoFile.filename.replace('temp-', 'video-');
-            const oldPath = videoFile.path;
-            const newPath = path.join(path.dirname(oldPath), newVideoName);
-            fs.renameSync(oldPath, newPath);
-            videoUrl = `/uploads/${newVideoName}`;
+            const processedVideoName = await processVideo(videoFile.path);
+            videoUrl = `/uploads/${processedVideoName}`;
         }
 
         const propResult = await client.query(
@@ -187,12 +185,9 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
 
         if (files && files.video && files.video[0]) {
             const videoFile = files.video[0];
-            const newVideoName = videoFile.filename.replace('temp-', 'video-');
-            const oldPath = videoFile.path;
-            const newPath = path.join(path.dirname(oldPath), newVideoName);
-            fs.renameSync(oldPath, newPath);
+            const processedVideoName = await processVideo(videoFile.path);
             videoUpdateSql = ', video_url = $12';
-            videoParams.push(`/uploads/${newVideoName}`);
+            videoParams.push(`/uploads/${processedVideoName}`);
         }
 
         // Update property details

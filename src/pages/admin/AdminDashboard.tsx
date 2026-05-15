@@ -39,15 +39,15 @@ export const AdminDashboard = () => {
             {/* Header Area */}
             <div className="flex flex-col md:flex-row justify-between items-end gap-4">
                 <div>
-                    <h2 className="text-4xl font-serif text-[#D4AF37] mb-2 tracking-tight">Inventario de Propiedades</h2>
-                    <p className="text-gray-500">Gestiona y publica tus activos inmobiliarios con precisión.</p>
+                    <h2 className="text-4xl font-serif text-[#D4AF37] mb-2 tracking-tight">Property Inventory</h2>
+                    <p className="text-gray-500">Manage and publish your real estate assets with precision.</p>
                 </div>
                 <Link
                     to="/admin/create"
                     className="bg-[#D4AF37] hover:bg-[#E5C158] text-black px-8 py-3 rounded-xl flex items-center gap-2 font-bold transition-all shadow-[0_10px_20px_rgba(212,175,55,0.1)] group"
                 >
                     <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                    Nueva Propiedad
+                    New Property
                 </Link>
             </div>
 
@@ -58,11 +58,11 @@ export const AdminDashboard = () => {
                         <thead>
                             <tr className="bg-white/[0.02] border-b border-white/10">
                                 <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Preview</th>
-                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Detalles</th>
-                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Inversión</th>
-                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Tipo</th>
-                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Estado</th>
-                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold text-center">Acciones</th>
+                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Details</th>
+                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Investment</th>
+                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Type</th>
+                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold">Status</th>
+                                <th className="p-6 text-[10px] uppercase tracking-[0.2em] text-[#D4AF37] font-bold text-center">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
@@ -108,9 +108,9 @@ export const AdminDashboard = () => {
                                                 prop.type === 'rent_long' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 
                                                 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
                                             }`}>
-                                                {prop.type === 'rent_short' ? 'Vacacional' :
-                                                 prop.type === 'rent_long' ? 'Renta Larga' : 
-                                                 prop.type === 'luxury' ? 'Luxury' : 'Venta'}
+                                                {prop.type === 'rent_short' ? 'Vacation' :
+                                                 prop.type === 'rent_long' ? 'Long Rent' : 
+                                                 prop.type === 'luxury' ? 'Luxury' : 'Sale'}
                                             </span>
                                         </td>
                                         <td className="p-6">
@@ -149,8 +149,8 @@ export const AdminDashboard = () => {
                                 <tr>
                                     <td colSpan={6} className="p-20 text-center">
                                         <Home className="w-12 h-12 text-white/5 mx-auto mb-4" />
-                                        <p className="text-gray-500 font-medium">No hay propiedades registradas aún.</p>
-                                        <Link to="/admin/create" className="text-[#D4AF37] text-sm mt-2 hover:underline">Comienza añadiendo la primera</Link>
+                                        <p className="text-gray-500 font-medium">No properties registered yet.</p>
+                                        <Link to="/admin/create" className="text-[#D4AF37] text-sm mt-2 hover:underline">Start by adding the first one</Link>
                                     </td>
                                 </tr>
                             )}

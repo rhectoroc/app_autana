@@ -10,17 +10,17 @@ import {
 
 export const Overview = () => {
     const stats = [
-        { label: 'Total Propiedades', value: '24', icon: Home, trend: '+12%', positive: true },
-        { label: 'Visitas Mensuales', value: '1,284', icon: Users, trend: '+5.4%', positive: true },
-        { label: 'Ventas Realizadas', value: '8', icon: TrendingUp, trend: '-2%', positive: false },
-        { label: 'Valor Portafolio', value: '$4.2M', icon: DollarSign, trend: '+18%', positive: true },
+        { label: 'Total Properties', value: '24', icon: Home, trend: '+12%', positive: true },
+        { label: 'Monthly Visits', value: '1,284', icon: Users, trend: '+5.4%', positive: true },
+        { label: 'Successful Sales', value: '8', icon: TrendingUp, trend: '-2%', positive: false },
+        { label: 'Portfolio Value', value: '$4.2M', icon: DollarSign, trend: '+18%', positive: true },
     ];
 
     return (
         <div className="space-y-10 pt-4">
             <div>
                 <h1 className="text-4xl font-serif text-[#D4AF37] mb-2 tracking-tight">Executive Overview</h1>
-                <p className="text-gray-500">Bienvenido al centro de control de Autana Group.</p>
+                <p className="text-gray-500">Welcome to Autana Group's command center.</p>
             </div>
 
             {/* Stats Grid */}
@@ -54,16 +54,16 @@ export const Overview = () => {
                     <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 to-transparent opacity-50" />
                     <div className="text-center z-10">
                         <BarChart3 className="w-12 h-12 text-[#D4AF37]/20 mx-auto mb-4" />
-                        <p className="text-gray-500 text-sm font-medium">Gráfico de Rendimiento de Ventas</p>
-                        <p className="text-[10px] text-[#D4AF37]/40 uppercase tracking-widest mt-2">Cargando Inteligencia...</p>
+                        <p className="text-gray-500 text-sm font-medium">Sales Performance Chart</p>
+                        <p className="text-[10px] text-[#D4AF37]/40 uppercase tracking-widest mt-2">Loading Intelligence...</p>
                     </div>
                 </div>
                 <div className="bg-white/5 border border-white/10 p-8 rounded-3xl h-80 flex items-center justify-center relative overflow-hidden">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#D4AF37]/5 to-transparent opacity-50" />
                     <div className="text-center z-10">
                         <Users className="w-12 h-12 text-[#D4AF37]/20 mx-auto mb-4" />
-                        <p className="text-gray-500 text-sm font-medium">Distribución Geográfica de Leads</p>
-                        <p className="text-[10px] text-[#D4AF37]/40 uppercase tracking-widest mt-2">Sincronizando Datos...</p>
+                        <p className="text-gray-500 text-sm font-medium">Geographic Lead Distribution</p>
+                        <p className="text-[10px] text-[#D4AF37]/40 uppercase tracking-widest mt-2">Syncing Data...</p>
                     </div>
                 </div>
             </div>
