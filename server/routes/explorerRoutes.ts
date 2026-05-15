@@ -1,10 +1,10 @@
 import express from 'express';
 import { getStorageStats } from '../controllers/explorerController.js';
-import { authenticateToken } from '../middleware/authMiddleware.js';
+import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
 // Only admins should access storage explorer
-router.get('/stats', authenticateToken, getStorageStats);
+router.get('/stats', verifyToken, getStorageStats);
 
 export default router;
