@@ -178,12 +178,12 @@ export const getPropertyById = async (req: Request, res: Response): Promise<void
 };
 
 export const updateProperty = async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+    const id = req.params.id as string;
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
-        const { title, description, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, status, existingImages } = req.body;
+        const { title, description, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, status } = req.body;
         const parsedFeatures = typeof features === 'string' ? JSON.parse(features) : features;
 
         // Handle Video
