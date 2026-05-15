@@ -22,6 +22,12 @@ RUN npx tsc -p tsconfig.server.json
 FROM node:20-alpine
 WORKDIR /app
 
+# Install system dependencies (ffmpeg for video conversion)
+RUN apk add --no-cache ffmpeg
+
+# Install pnpm for production dependency management
+RUN npm install -g pnpm
+
 # Copy production dependencies
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --prod --frozen-lockfile
