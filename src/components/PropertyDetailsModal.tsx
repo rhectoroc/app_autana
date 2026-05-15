@@ -18,6 +18,8 @@ interface PropertyDetailsModalProps {
 export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ property, onClose }) => {
     const { t } = useTranslation();
     const [copied, setCopied] = useState(false);
+    const [swiperInstance, setSwiperInstance] = useState<any>(null);
+    const [activeIndex, setActiveIndex] = useState(0);
 
     // Prevent background scroll when modal is open
     useEffect(() => {
@@ -81,53 +83,88 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
                         <div className="flex flex-col lg:flex-row">
 
                             {/* Visuals Column */}
-                            <div className="lg:w-3/5 bg-gray-100 flex flex-col relative h-[400px] lg:h-[500px]">
-                                <Swiper
-                                    modules={[Pagination, Navigation]}
-                                    speed={700}
-                                    pagination={{ clickable: true, dynamicBullets: true }}
-                                    navigation
-                                    loop={true}
-                                    className="w-full h-full text-white"
-                                >
-                                    {property.media.map((item, index) => (
-                                        <SwiperSlide key={item.id || index} className="w-full h-full bg-black">
-                                            {item.type === 'video' ? (
-                                                <video
-                                                    src={getMediaUrl(item.url)}
-                                                    controls
-                                                    className="w-full h-full object-contain"
-                                                />
-                                            ) : (
-                                                <div className="relative w-full h-full flex items-center justify-center">
-                                                    <img
+                            <div className="lg:w-3/5 bg-gray-100 flex flex-col relative">
+                                <div className="h-[350px] lg:h-[450px] relative w-full">
+                                    <Swiper
+                                        modules={[Pagination, Navigation]}
+                                        speed={700}
+                                        pagination={{ clickable: true, dynamicBullets: true }}
+                                        navigation
+                                        loop={true}
+                                        onSwiper={setSwiperInstance}
+                                        onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
+                                        className="w-full h-full text-white"
+                                    >
+                                        {property.media.map((item, index) => (
+                                            <SwiperSlide key={item.id || index} className="w-full h-full bg-black">
+                                                {item.type === 'video' ? (
+                                                    <video
                                                         src={getMediaUrl(item.url)}
-                                                        alt={`View ${index + 1}`}
+                                                        controls
                                                         className="w-full h-full object-contain"
-                                                        onError={(e) => {
-                                                            const target = e.target as HTMLImageElement;
-                                                            target.onerror = null;
-                                                            target.src = 'https://placehold.co/600x400/1a1a1a/D4AF37?text=Image+Missing';
-                                                        }}
                                                     />
-                                                    {/* Brand Watermark Overlay (Pre-upload Preview) */}
-                                                    {item.url.startsWith('blob:') && (
-                                                        <div className="absolute bottom-6 right-6 w-1/5 max-w-[120px] pointer-events-none opacity-40 z-10">
-                                                            <img src="/logo/autana_watermark.png" alt="Watermark" className="w-full h-auto" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </SwiperSlide>
-                                    ))}
-                                </Swiper>
+                                                ) : (
+                                                    <div className="relative w-full h-full flex items-center justify-center">
+                                                        <img
+                                                            src={getMediaUrl(item.url)}
+                                                            alt={`View ${index + 1}`}
+                                                            className="w-full h-full object-contain"
+                                                            onError={(e) => {
+                                                                const target = e.target as HTMLImageElement;
+                                                                target.onerror = null;
+                                                                target.src = 'https://placehold.co/600x400/1a1a1a/D4AF37?text=Image+Missing';
+                                                            }}
+                                                        />
+                                                        {/* Brand Watermark Overlay (Pre-upload Preview) */}
+                                                        {item.url.startsWith('blob:') && (
+                                                            <div className="absolute bottom-6 right-6 w-1/5 max-w-[120px] pointer-events-none opacity-40 z-10">
+                                                                <img src="/logo/autana_watermark.png" alt="Watermark" className="w-full h-auto" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </SwiperSlide>
+                                        ))}
+                                    </Swiper>
 
-                                <div className="absolute top-6 left-6 z-10">
-                                    <span className={`px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-sm shadow-md text-white ${property.status === 'sold' ? 'bg-red-600' :
-                                        property.type === 'sale' ? 'bg-gold-500' : 'bg-charcoal'
-                                        }`}>
-                                        {property.status === 'sold' ? 'SOLD' : property.type.replace('_', ' ')}
-                                    </span>
+                                    <div className="absolute top-6 left-6 z-10">
+                                        <span className={`px-3 py-1 text-xs font-bold uppercase tracking-widest rounded-sm shadow-md text-white ${property.status === 'sold' ? 'bg-red-600' :
+                                            property.type === 'sale' ? 'bg-gold-500' : 'bg-charcoal'
+                                            }`}>
+                                            {property.status === 'sold' ? 'SOLD' : property.type.replace('_', ' ')}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Thumbnail Gallery */}
+                                <div className="p-4 bg-white border-t border-gray-100 flex gap-3 overflow-x-auto scrollbar-hide">
+                                    {property.media.map((item, index) => (
+                                        <motion.button
+                                            key={index}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            onClick={() => swiperInstance?.slideToLoop(index)}
+                                            className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all duration-300 ${activeIndex === index ? 'border-gold-500 shadow-lg' : 'border-transparent opacity-50 hover:opacity-100'
+                                                }`}
+                                        >
+                                            {item.type === 'video' ? (
+                                                <div className="w-full h-full bg-charcoal flex items-center justify-center relative">
+                                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center z-10">
+                                                        <div className="w-6 h-6 rounded-full border border-white flex items-center justify-center">
+                                                            <div className="w-0 h-0 border-t-4 border-t-transparent border-l-6 border-l-white border-b-4 border-b-transparent ml-1" />
+                                                        </div>
+                                                    </div>
+                                                    <video src={getMediaUrl(item.url)} className="w-full h-full object-cover" />
+                                                </div>
+                                            ) : (
+                                                <img
+                                                    src={getMediaUrl(item.url)}
+                                                    alt={`Thumbnail ${index}`}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            )}
+                                        </motion.button>
+                                    ))}
                                 </div>
                             </div>
 
