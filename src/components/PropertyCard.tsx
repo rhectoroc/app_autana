@@ -3,7 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation, EffectFade } from 'swiper/modules';
 import { Bed, Bath, Car, Maximize, MapPin, Play } from 'lucide-react';
 import type { Property } from '../types/property';
-import { formatCurrency, formatArea } from '../utils/format';
+import { formatCurrency, formatArea, getMediaUrl } from '../utils/format';
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
 import 'swiper/css';
@@ -26,6 +26,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
     const getTypeLabel = (type: Property['type']) => {
         switch (type) {
             case 'sale': return t.properties.tabs.sale;
+            case 'luxury': return t.properties.tabs.luxury;
             case 'rent_short': return t.properties.tabs.rent_short;
             case 'rent_long': return t.properties.tabs.rent_long;
             default: return type;
@@ -35,6 +36,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
     const getTypeColor = (type: Property['type']) => {
         switch (type) {
             case 'sale': return 'bg-gold-500';
+            case 'luxury': return 'bg-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.4)]';
             default: return 'bg-charcoal';
         }
     };
@@ -71,10 +73,10 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                             {item.type === 'video' ? (
                                 <div className="relative h-full w-full">
                                     <video
-                                        src={item.url}
+                                        src={getMediaUrl(item.url)}
                                         className="h-full w-full object-cover"
                                         controls={isPlaying === item.id}
-                                        poster={property.media.find(m => m.type === 'image')?.url}
+                                        poster={getMediaUrl(property.media.find(m => m.type === 'image')?.url || '')}
                                         onPlay={() => setIsPlaying(item.id)}
                                         onPause={() => setIsPlaying(null)}
                                     />
@@ -89,7 +91,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                             ) : (
                                 <div onClick={onClick} className="block h-full w-full cursor-pointer">
                                     <img
-                                        src={item.url}
+                                        src={getMediaUrl(item.url)}
                                         alt={property.title}
                                         loading="lazy"
                                         className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
@@ -202,7 +204,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
 
                     <div className="relative z-10 mt-auto">
                         <button className="w-full bg-[#D4AF37] hover:bg-[#E5C158] text-black font-bold py-3 rounded-lg transition-all transform active:scale-95 flex items-center justify-center gap-2 group/btn shadow-[0_0_20px_rgba(212,175,55,0.2)]">
-                            View Details
+                            {t.propertyCard.viewDetails}
                             <Maximize className="w-4 h-4 group-hover/btn:scale-110 transition-transform" />
                         </button>
                     </div>

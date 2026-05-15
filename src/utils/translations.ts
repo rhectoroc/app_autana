@@ -22,6 +22,7 @@ export const translations = {
             types: {
                 all: "All Types",
                 sale: "Buy",
+                luxury: "Luxury",
                 rent_long: "Rent (Long)",
                 rent_short: "Rent (Short)"
             }
@@ -32,6 +33,7 @@ export const translations = {
             tabs: {
                 all: "All Properties",
                 sale: "For Sale",
+                luxury: "Luxury",
                 rent_long: "Long Term Rent",
                 rent_short: "Vacation Rentals"
             },
@@ -183,6 +185,7 @@ export const translations = {
             types: {
                 all: "Todos",
                 sale: "Comprar",
+                luxury: "De Lujo",
                 rent_long: "Renta (Larga)",
                 rent_short: "Renta (Corta)"
             }
@@ -193,6 +196,7 @@ export const translations = {
             tabs: {
                 all: "Todas",
                 sale: "Venta",
+                luxury: "De Lujo",
                 rent_long: "Renta Larga",
                 rent_short: "Renta Vacacional"
             },

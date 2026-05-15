@@ -3,8 +3,9 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 # Install dependencies
-COPY package*.json ./
-RUN npm ci
+RUN npm install -g pnpm
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
@@ -12,7 +13,7 @@ COPY . .
 # Build Frontend
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
-RUN npm run build
+RUN pnpm run build
 
 # Build Backend (Server)
 RUN npx tsc -p tsconfig.server.json
@@ -22,8 +23,8 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Copy production dependencies
-COPY package*.json ./
-RUN npm ci --only=production
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
 
 # Copy built frontend (dist) and backend (dist-server)
 COPY --from=builder /app/dist ./dist
