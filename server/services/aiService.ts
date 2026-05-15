@@ -95,3 +95,47 @@ export const getPropertiesAIContext = async (): Promise<string> => {
         return "Error loading property catalog.";
     }
 };
+
+/**
+ * Sends a message to the AI agent with full context
+ */
+export const chatWithAI = async (message: string, history: any[] = []): Promise<string> => {
+    if (!DEEPSEEK_API_KEY) return "AI Service: DEEPSEEK_API_KEY not configured.";
+
+    try {
+        const context = await getPropertiesAIContext();
+        const systemPrompt = `
+            Eres el Concierge de Autana Group. Tu objetivo es ayudar a clientes de alto perfil a encontrar la propiedad de sus sueños.
+            
+            IDENTIDAD Y REGLAS:
+            - Eres sofisticado, servicial y profesional.
+            - Usa un tono de lujo caribeño.
+            - Responde siempre en el idioma del cliente.
+            - No inventes propiedades que no estén en el contexto.
+            - Si el cliente está interesado, invita a agendar una visita privada.
+            
+            CONTEXTO DEL CATÁLOGO ACTUAL:
+            ${context}
+        `;
+
+        const response = await axios.post(DEEPSEEK_URL, {
+            model: 'deepseek-chat',
+            messages: [
+                { role: 'system', content: systemPrompt },
+                ...history,
+                { role: 'user', content: message }
+            ],
+            temperature: 0.5
+        }, {
+            headers: {
+                'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        return response.data.choices[0].message.content;
+    } catch (error) {
+        console.error('AI Chat Error:', error);
+        return "Lo siento, estoy experimentando dificultades técnicas. ¿Podría intentarlo de nuevo en un momento?";
+    }
+};
