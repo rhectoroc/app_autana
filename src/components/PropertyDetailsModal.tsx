@@ -94,21 +94,29 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
                                         <SwiperSlide key={item.id || index} className="w-full h-full bg-black">
                                             {item.type === 'video' ? (
                                                 <video
-                                                    src={item.url}
+                                                    src={getMediaUrl(item.url)}
                                                     controls
                                                     className="w-full h-full object-contain"
                                                 />
                                             ) : (
-                                                <img
-                                                    src={item.url}
-                                                    alt={`View ${index + 1}`}
-                                                    className="w-full h-full object-contain"
-                                                    onError={(e) => {
-                                                        const target = e.target as HTMLImageElement;
-                                                        target.onerror = null;
-                                                        target.src = 'https://placehold.co/600x400/1a1a1a/D4AF37?text=Image+Missing';
-                                                    }}
-                                                />
+                                                <div className="relative w-full h-full flex items-center justify-center">
+                                                    <img
+                                                        src={getMediaUrl(item.url)}
+                                                        alt={`View ${index + 1}`}
+                                                        className="w-full h-full object-contain"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.onerror = null;
+                                                            target.src = 'https://placehold.co/600x400/1a1a1a/D4AF37?text=Image+Missing';
+                                                        }}
+                                                    />
+                                                    {/* Brand Watermark Overlay (Pre-upload Preview) */}
+                                                    {item.url.startsWith('blob:') && (
+                                                        <div className="absolute bottom-6 right-6 w-1/5 max-w-[120px] pointer-events-none opacity-40 z-10">
+                                                            <img src="/logo/autana_watermark.png" alt="Watermark" className="w-full h-auto" />
+                                                        </div>
+                                                    )}
+                                                </div>
                                             )}
                                         </SwiperSlide>
                                     ))}

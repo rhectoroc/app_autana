@@ -89,7 +89,7 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                                     )}
                                 </div>
                             ) : (
-                                <div onClick={onClick} className="block h-full w-full cursor-pointer">
+                                <div onClick={onClick} className="block h-full w-full cursor-pointer relative overflow-hidden">
                                     <img
                                         src={getMediaUrl(item.url)}
                                         alt={property.title}
@@ -101,6 +101,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                                             target.src = 'https://placehold.co/600x400/1a1a1a/D4AF37?text=Autana+Group';
                                         }}
                                     />
+                                    {/* Brand Watermark Overlay (Only for local previews, backend burns it for prod) */}
+                                    {item.url.startsWith('blob:') && (
+                                        <div className="absolute bottom-2 right-2 w-1/4 max-w-[80px] pointer-events-none opacity-50 z-10">
+                                            <img src="/logo/autana_watermark.png" alt="Watermark" className="w-full h-auto" />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </SwiperSlide>
