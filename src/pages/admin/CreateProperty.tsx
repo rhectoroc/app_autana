@@ -180,10 +180,10 @@ export const CreateProperty = () => {
     };
 
     // Sort preview media to respect main image selection
-    if (previewMedia.length > 0 && mainImageIndex > 0 && mainImageIndex < previewMedia.length) {
+    if (previewMedia.length > 0 && mainImageIndex >= 0 && mainImageIndex < previewMedia.length) {
         const main = previewMedia[mainImageIndex];
-        previewMedia.splice(mainImageIndex, 1);
-        previewMedia.unshift(main);
+        const otherMedia = previewMedia.filter((_, i) => i !== mainImageIndex);
+        previewMedia = [main, ...otherMedia];
     }
 
     return (

@@ -228,10 +228,17 @@ export const EditProperty = () => {
     };
 
     // Construct Preview
-    const previewMedia: Property['media'] = [
-        ...existingImages.map(img => ({ id: img.id, type: 'image' as const, url: getImageUrl(img.image_url) })),
-        ...newPreviews.map((url, i) => ({ id: `new-${i}`, type: 'image' as const, url: url }))
+    let previewMedia: Property['media'] = [
+        ...existingImages.map(img => ({ id: img.id, type: 'image' as const, url: getImageUrl(img.image_url), is_main: mainImageId === img.id })),
+        ...newPreviews.map((url, i) => ({ id: `new-${i}`, type: 'image' as const, url: url, is_main: mainImageId === `new-${i}` }))
     ];
+
+    // Sort to put main image first
+    previewMedia.sort((a, b) => {
+        if (a.is_main) return -1;
+        if (b.is_main) return 1;
+        return 0;
+    });
 
     if (selectedVideo) {
         previewMedia.push({ id: 'new-video', type: 'video' as const, url: URL.createObjectURL(selectedVideo) });
