@@ -2,20 +2,24 @@
 
 ## Fecha: 15 de Mayo, 2026
 
-### 🛡️ Integridad de Datos (Crítico)
-- **Fix de Colisión de Imágenes**: Se resolvió el bug donde nuevas propiedades sobrescribían fotos de registros existentes.
-- **Nueva Lógica de Naming**: Implementación de nomenclatura única: `prop_[ID]_[TIMESTAMP]_[INDEX].webp`.
-- **Procesamiento WebP**: Optimización automática de todas las subidas a formato WebP con marca de agua, vinculada directamente al ID de la propiedad.
+### 🛡️ Infraestructura de Medios (Hierarchical Storage)
+- **Carpetas por Propiedad**: Implementación de almacenamiento jerárquico. Ahora cada propiedad tiene su propio directorio físico `/uploads/prop_[ID]/`.
+- **Aislamiento de Activos**: Los archivos de una propiedad están totalmente aislados, eliminando cualquier riesgo de colisión o sobreescritura accidental.
+- **Refactor de Procesadores**: Actualización de `imageProcessor.ts` y `videoProcessor.ts` para soportar rutas dinámicas basadas en el ID de la propiedad.
 
-### 🤖 Inteligencia Artificial (Concierge)
-- **Estructura JSON**: El agente ahora responde en formato estructurado, separando texto de multimedia.
-- **Envío de Media Directo**: Integración con **Evolution API** para enviar imágenes físicas de las propiedades a WhatsApp en lugar de simples URLs.
-- **Entrenamiento de Marca**: Se incorporaron los valores de Autana Group (gestión integral, rentas cortas/largas, mantenimiento) en el sistema de prompts del agente.
+### 🔍 Gestión Administrativa (Media Explorer)
+- **Nuevo Módulo Explorer**: Creación de una herramienta interna en *Settings* para visualizar el volumen de datos y explorar archivos físicamente.
+- **Previsualización de Activos**: Modal de preview de alta resolución integrado para imágenes y videos dentro del panel de configuración.
+- **Eliminación Granular y Masiva**: Capacidad para borrar archivos individuales o carpetas de propiedades completas directamente desde la UI.
 
-### 💼 Panel Administrativo
-- **Gestión de Imagen Principal**: Se habilitó la funcionalidad "Set as Main" en el flujo de edición.
-- **Audit de Edición**: Corrección en la persistencia de imágenes existentes durante la actualización de propiedades.
-- **TS Build Fix**: Resolución de errores de redeclaración y tipado que bloqueaban el despliegue en Easypanel.
+### 💎 UX & UI Premium
+- **ConfirmModal Custom**: Sustitución de los diálogos nativos del navegador por modales de lujo con glassmorphism y animaciones Framer Motion.
+- **Navegación Stay-on-Page**: El flujo de creación y edición ahora mantiene al usuario en la página tras guardar, mejorando la eficiencia del workflow.
+- **Live Preview Sync**: Sincronización inmediata del carrusel de previsualización al seleccionar una imagen como principal ("Main").
+
+### 🤖 Inteligencia Artificial & API
+- **WhatsApp Concierge**: Refinamiento del agente para enviar archivos multimedia físicos via Evolution API.
+- **Fix de Tipado**: Resolución de errores de compilación (`verifyToken`, imports faltantes, tipos implícitos) para asegurar builds de producción estables.
 
 ---
 *Documento actualizado por Antigravity AI.*
