@@ -218,7 +218,7 @@ export const EditProperty = () => {
                 }
             });
             showToast('Property updated successfully!', 'success');
-            navigate('/admin/dashboard');
+            // User stays on edit page
         } catch (err) {
             console.error('Update failed', err);
             showToast('Failed to update property.', 'error');

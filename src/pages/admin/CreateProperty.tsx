@@ -127,7 +127,7 @@ export const CreateProperty = () => {
         }
 
         try {
-            await api.post('/properties', data, {
+            const response = await api.post('/properties', data, {
                 headers: { 'Content-Type': 'multipart/form-data' },
                 onUploadProgress: (progressEvent) => {
                     if (progressEvent.total) {
@@ -136,8 +136,9 @@ export const CreateProperty = () => {
                     }
                 }
             });
+            const { propertyId } = response.data;
             showToast('Property created successfully!', 'success');
-            navigate('/admin/dashboard');
+            navigate(`/admin/edit/${propertyId}`);
         } catch (err) {
             console.error('Upload failed', err);
             showToast('Failed to create property. Check connection.', 'error');
