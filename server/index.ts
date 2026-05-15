@@ -6,7 +6,7 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
-import { initDB } from './config/db.js';
+import { initDB, pool } from './config/db.js';
 
 dotenv.config();
 
