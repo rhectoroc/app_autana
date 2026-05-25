@@ -8,7 +8,9 @@ import authRoutes from './routes/authRoutes.js';
 import propertyRoutes from './routes/propertyRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import explorerRoutes from './routes/explorerRoutes.js';
+import bookingRoutes from './routes/bookingRoutes.js';
 import { initDB, pool } from './config/db.js';
+
 
 dotenv.config();
 
@@ -20,8 +22,43 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Middleware
-app.use(cors());
+const defaultOrigins = [
+    'https://autanagrouprd.com',
+    'https://www.autanagrouprd.com',
+    'https://app.autanagrouprd.com',
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:3000'
+];
+
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : defaultOrigins;
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, postman, curl)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+            callback(null, true);
+        } else {
+            callback(new Error(`Origin ${origin} not allowed by CORS`));
+        }
+    },
+    credentials: true
+}));
+
+// Basic Security Headers Middleware
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
+
 app.use(express.json());
+
 
 // Health Check Endpoint for Easypanel/Docker
 app.get('/health', (req, res) => {
@@ -49,6 +86,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/properties', propertyRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/explorer', explorerRoutes);
+app.use('/api/bookings', bookingRoutes);
+
 
 // Serve Static Files (React App)
 const clientBuildPath = path.join(process.cwd(), 'dist');

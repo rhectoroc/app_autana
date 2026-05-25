@@ -85,12 +85,26 @@ export const deleteFile = async (req: Request, res: Response): Promise<void> => 
             return;
         }
 
+        const uploadsDir = path.resolve(process.cwd(), 'uploads');
         const filePath = folder 
-            ? path.join(process.cwd(), 'uploads', folder, filename)
-            : path.join(process.cwd(), 'uploads', filename);
+            ? path.resolve(uploadsDir, folder, filename)
+            : path.resolve(uploadsDir, filename);
+
+        // Strict path traversal check
+        if (!filePath.startsWith(uploadsDir)) {
+            res.status(403).json({ message: 'Access denied: Path traversal detected' });
+            return;
+        }
 
         if (!fs.existsSync(filePath)) {
             res.status(404).json({ message: 'File not found' });
+            return;
+        }
+
+        // Additional safeguard: ensure it is a file and not a directory
+        const stats = fs.statSync(filePath);
+        if (!stats.isFile()) {
+            res.status(400).json({ message: 'Target is not a file' });
             return;
         }
 
@@ -110,10 +124,24 @@ export const deleteFolder = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
-        const folderPath = path.join(process.cwd(), 'uploads', folder);
+        const uploadsDir = path.resolve(process.cwd(), 'uploads');
+        const folderPath = path.resolve(uploadsDir, folder);
+
+        // Strict path traversal check (must be inside uploads, and cannot be uploads itself)
+        if (!folderPath.startsWith(uploadsDir) || folderPath === uploadsDir) {
+            res.status(403).json({ message: 'Access denied: Invalid folder path' });
+            return;
+        }
 
         if (!fs.existsSync(folderPath)) {
             res.status(404).json({ message: 'Folder not found' });
+            return;
+        }
+
+        // Additional safeguard: ensure it is a directory
+        const stats = fs.statSync(folderPath);
+        if (!stats.isDirectory()) {
+            res.status(400).json({ message: 'Target is not a directory' });
             return;
         }
 
@@ -125,3 +153,4 @@ export const deleteFolder = async (req: Request, res: Response): Promise<void> =
         res.status(500).json({ message: 'Error deleting folder', error: err.message });
     }
 };
+

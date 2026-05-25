@@ -40,6 +40,18 @@ export const chatWithAgent = async (req: Request, res: Response): Promise<void> 
 export const handleWhatsAppWebhook = async (req: Request, res: Response): Promise<void> => {
     try {
         const payload = req.body;
+
+        // Verify webhook secret if configured in env
+        const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+        if (WEBHOOK_SECRET) {
+            const headerSecret = req.headers['x-webhook-secret'];
+            const querySecret = req.query.secret;
+            if (headerSecret !== WEBHOOK_SECRET && querySecret !== WEBHOOK_SECRET) {
+                console.warn('Blocked unauthorized webhook access attempt.');
+                res.status(401).json({ error: 'Unauthorized: Invalid secret' });
+                return;
+            }
+        }
         
         // Evolution API structure usually has data.message.conversation or similar
         const incomingMessage = payload.data?.message?.conversation || payload.data?.message?.extendedTextMessage?.text;
@@ -49,6 +61,7 @@ export const handleWhatsAppWebhook = async (req: Request, res: Response): Promis
             res.status(200).json({ status: 'ignored' });
             return;
         }
+
 
         console.log(`WhatsApp Message from ${remoteJid}: ${incomingMessage}`);
 

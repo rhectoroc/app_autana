@@ -34,3 +34,14 @@ CREATE TABLE IF NOT EXISTS images (
 -- Migration for existing tables
 ALTER TABLE properties DROP CONSTRAINT IF EXISTS properties_type_check;
 ALTER TABLE properties ADD CONSTRAINT properties_type_check CHECK (type IN ('rent_short', 'rent_long', 'sale', 'luxury'));
+
+CREATE TABLE IF NOT EXISTS bookings (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50) NOT NULL,
+  property VARCHAR(255) NOT NULL,
+  date DATE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
