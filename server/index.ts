@@ -75,11 +75,15 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Static files
-app.use('/uploads', express.static(uploadsDir));
+app.use('/uploads', express.static(uploadsDir, {
+    maxAge: '1y',
+    immutable: true
+}));
 // If file not found in uploads, return 404 immediately to avoid falling back to index.html
 app.use('/uploads', (req, res) => {
     res.status(404).send('File not found');
 });
+
 
 // Routes
 app.use('/api/auth', authRoutes);
