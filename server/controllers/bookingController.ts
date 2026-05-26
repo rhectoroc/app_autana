@@ -29,7 +29,7 @@ export const createBooking = async (req: Request, res: Response): Promise<void> 
     }
 
     // Verify Google reCAPTCHA
-    const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6LeIxAcTAAAAAGG-vFI1TnFTxWagQXZaUO8mB562';
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6Legwv0sAAAAAJH9Wx40E6t--JbX0kaNNy39naE8';
     const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
 
     try {
