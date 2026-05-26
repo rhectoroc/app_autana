@@ -1,5 +1,13 @@
 # Autana Admin & Backend - Registro de Avances
 
+## Fecha: 26 de Mayo, 2026
+
+### 🛡️ Robustez en Validación de reCAPTCHA
+- **Clave Secreta de Producción por Defecto (Fallback)**:
+    - Se actualizó el controlador de reservas (`bookingController.ts`) para establecer la clave privada real de producción (`6Legwv0sAAAAAJH9Wx40E6t--JbX0kaNNy39naE8`) como valor de respaldo (fallback) en caso de que la variable de entorno `RECAPTCHA_SECRET_KEY` no se inyecte correctamente en el entorno de ejecución de Node.js, asegurando la validación del formulario de reservas en todo momento.
+
+---
+
 ## Fecha: 25 de Mayo, 2026
 
 ### 🛡️ Fortificación de Seguridad y Auditoría (OWASP / Producción)
