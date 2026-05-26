@@ -16,10 +16,37 @@ const transporter = nodemailer.createTransport({
 });
 
 export const createBooking = async (req: Request, res: Response): Promise<void> => {
-    const { name, email, phone, property, date } = req.body;
+    const { name, email, phone, property, date, recaptchaToken } = req.body;
 
     if (!name || !email || !phone || !property || !date) {
         res.status(400).json({ message: 'All booking fields are required.' });
+        return;
+    }
+
+    if (!recaptchaToken) {
+        res.status(400).json({ message: 'Security check (reCAPTCHA) is required.' });
+        return;
+    }
+
+    // Verify Google reCAPTCHA
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY || '6LeIxAcTAAAAAGG-vFI1TnFTxWagQXZaUO8mB562';
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify`;
+
+    try {
+        const verificationResponse = await fetch(verifyUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `secret=${secretKey}&response=${recaptchaToken}`
+        });
+        const verificationResult: any = await verificationResponse.json();
+
+        if (!verificationResult.success) {
+            res.status(400).json({ message: 'reCAPTCHA verification failed. Please try again.' });
+            return;
+        }
+    } catch (recaptchaErr) {
+        console.error('reCAPTCHA verification error:', recaptchaErr);
+        res.status(500).json({ message: 'Error verifying security check.' });
         return;
     }
 
