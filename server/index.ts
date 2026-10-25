@@ -11,6 +11,7 @@ import explorerRoutes from './routes/explorerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
 import backupRoutes from './routes/backupRoutes.js';
 import userRoutes from './routes/userRoutes.js';
+import diagnosticRoutes from './routes/diagnosticRoutes.js';
 import { initDB, pool } from './config/db.js';
 
 
@@ -105,6 +106,7 @@ app.use('/api/explorer', explorerRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/backup', backupRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/diagnostic', diagnosticRoutes);
 
 
 // Serve Static Files (React App)

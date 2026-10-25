@@ -3,6 +3,7 @@ import { Folder, File, HardDrive, Search, ChevronRight, ChevronDown, Package, Ex
 import api from '../../../services/api';
 import { useToast } from '../../../context/ToastContext';
 import { ConfirmModal } from '../../../components/ui/ConfirmModal';
+import { UploadTester } from './UploadTester';
 
 interface StorageFile {
     name: string;
@@ -130,6 +131,9 @@ export const StorageTab = () => {
 
     return (
         <div className="space-y-8 animate-in fade-in duration-500">
+            {/* Upload Diagnostic Tester */}
+            <UploadTester />
+
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-gradient-to-br from-neutral-800 to-neutral-900 p-6 rounded-2xl border border-white/10 shadow-xl">
