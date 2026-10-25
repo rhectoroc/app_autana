@@ -20,9 +20,9 @@ export const createProperty = async (req: Request, res: Response): Promise<void>
         // 1. Create property first to get ID
         const propResult = await client.query(
             `INSERT INTO properties (title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13)
              RETURNING id`,
-            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available']
+            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures || []), status || 'available']
         );
 
         const propertyId = propResult.rows[0].id;
@@ -210,9 +210,9 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
         const whereIdIndex = 14 + videoParams.length;
         await client.query(
             `UPDATE properties 
-             SET title = $1, title_en = $2, description = $3, description_en = $4, price = $5, type = $6, bathrooms = $7, bedrooms = $8, area_sqm = $9, parking_spots = $10, location = $11, features = $12, status = $13${videoUpdateSql}
+             SET title = $1, title_en = $2, description = $3, description_en = $4, price = $5, type = $6, bathrooms = $7, bedrooms = $8, area_sqm = $9, parking_spots = $10, location = $11, features = $12::jsonb, status = $13${videoUpdateSql}
              WHERE id = $${whereIdIndex}`,
-            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available', ...videoParams, id]
+            [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures || []), status || 'available', ...videoParams, id]
         );
 
         // Handle Images
