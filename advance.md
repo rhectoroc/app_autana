@@ -1,5 +1,22 @@
 # Autana Admin & Backend - Registro de Avances
 
+## Fecha: 25 de Octubre, 2026
+
+### 🎥 Optimización de Video y Autoplay en Tarjetas
+- **Pipeline de Video Silencioso y Ligero (`videoProcessor.ts`)**:
+    - **Eliminación Total de Audio (`.noAudio()`)**: Se configuró FFmpeg para despojar cualquier pista de audio del video subido, garantizando que los navegadores móviles y de escritorio permitan el autoplay de inmediato sin restricciones de políticas de sonido.
+    - **Formato MP4 Ultrarrápido (`H.264 / libx264`)**: Sustitución del codec lento `VP9/webm` (que causaba timeout en el servidor) por `libx264` con perfil `-preset ultrafast` y `-movflags +faststart`, permitiendo que el video comience a reproducirse en milisegundos sin esperar a que el archivo descargue por completo.
+- **Autoplay en Tarjetas de Propiedad (`PropertyCard.tsx`)**:
+    - Se adaptaron los componentes de tarjetas tanto en la aplicación administrativa (`app`) como en el portal público (`web`) con atributos `autoPlay`, `muted`, `loop` y `playsInline`.
+    - Si la propiedad contiene un video, la tarjeta lo reproduce en bucle continuo de forma automática manteniendo la imagen de portada como respaldo (`poster`).
+- **Trazabilidad y Logs del Servidor (`server/index.ts` y `videoProcessor.ts`)**:
+    - Middleware de telemetría HTTP en Express para auditar en tiempo real cada petición (`[HTTP] METHOD /url -> status (ms)`).
+    - Logs detallados del proceso de conversión FFmpeg paso a paso (comando, progreso porcentual, finalización o fallback).
+- **Corrección de Build en Docker (`pnpm-workspace.yaml` & `Dockerfile`)**:
+    - Habilitación de `allowBuilds` para compilación nativa de `sharp` y `esbuild` requerida por pnpm v10+ en el entorno Alpine.
+
+---
+
 ## Fecha: 26 de Mayo, 2026
 
 ### 🛡️ Robustez en Validación de reCAPTCHA
