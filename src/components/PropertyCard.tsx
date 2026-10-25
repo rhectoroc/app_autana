@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Navigation, EffectFade } from 'swiper/modules';
-import { Bed, Bath, Car, Maximize, MapPin, Play } from 'lucide-react';
+import { Bed, Bath, Car, Maximize, MapPin } from 'lucide-react';
 import type { Property } from '../types/property';
 import { formatCurrency, formatArea, getMediaUrl } from '../utils/format';
 import { motion } from 'framer-motion';
@@ -19,7 +19,6 @@ interface PropertyCardProps {
 
 export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick }) => {
     const [isFlipped, setIsFlipped] = useState(false);
-    const [isPlaying, setIsPlaying] = useState<string | number | null>(null);
     const { t, language } = useTranslation();
 
     const displayTitle = (language === 'en' && property.title_en) ? property.title_en : property.title;
