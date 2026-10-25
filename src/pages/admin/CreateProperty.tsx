@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Upload, X, ArrowLeft } from 'lucide-react';
+import { Upload, X, ArrowLeft, Loader } from 'lucide-react';
 import api from '../../services/api';
 import { compressImage } from '../../utils/imageOptimizer';
+import { compressVideo } from '../../utils/videoOptimizer';
 import { PropertyCard } from '../../components/PropertyCard';
 import { PropertyDetailsModal } from '../../components/PropertyDetailsModal';
 import type { Property } from '../../types/property';
@@ -34,6 +35,8 @@ export const CreateProperty = () => {
     const [previews, setPreviews] = useState<string[]>([]);
     const [mainImageIndex, setMainImageIndex] = useState(0);
     const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+    const [videoCompressing, setVideoCompressing] = useState(false);
+    const [videoProgress, setVideoProgress] = useState(0);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -433,14 +436,58 @@ export const CreateProperty = () => {
                                         name="video-upload"
                                         type="file"
                                         accept="video/*"
-                                        onChange={e => setSelectedVideo(e.target.files?.[0] || null)}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        disabled={videoCompressing}
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+
+                                            try {
+                                                setVideoCompressing(true);
+                                                setVideoProgress(0);
+                                                showToast(`Optimizing video (${(file.size / (1024 * 1024)).toFixed(1)} MB)...`, 'info');
+
+                                                const compressed = await compressVideo(file, (p) => {
+                                                    setVideoProgress(p.percent);
+                                                });
+
+                                                setSelectedVideo(compressed);
+                                                showToast(`Video optimized! New size: ${(compressed.size / (1024 * 1024)).toFixed(1)} MB`, 'success');
+                                            } catch (optErr) {
+                                                console.error('Video optimization failed', optErr);
+                                                setSelectedVideo(file);
+                                            } finally {
+                                                setVideoCompressing(false);
+                                                setVideoProgress(0);
+                                            }
+                                        }}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
                                     />
                                     <p className="text-gray-400">
-                                        {selectedVideo ? `Selected: ${selectedVideo.name}` : 'Click to upload video'}
+                                        {videoCompressing ? (
+                                            <span className="text-[#D4AF37] flex items-center justify-center gap-2">
+                                                <Loader className="w-4 h-4 animate-spin" />
+                                                Optimizing video in browser: {videoProgress}%
+                                            </span>
+                                        ) : selectedVideo ? (
+                                            `Selected: ${selectedVideo.name} (${(selectedVideo.size / (1024 * 1024)).toFixed(1)} MB)`
+                                        ) : (
+                                            'Click to upload video (automatically compressed for web)'
+                                        )}
                                     </p>
                                 </div>
-                                {selectedVideo && (
+
+                                {videoCompressing && (
+                                    <div className="mt-3">
+                                        <div className="w-full bg-neutral-700 rounded-full h-2">
+                                            <div 
+                                                className="bg-[#D4AF37] h-2 rounded-full transition-all duration-150" 
+                                                style={{ width: `${videoProgress}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedVideo && !videoCompressing && (
                                     <button 
                                         type="button"
                                         onClick={() => setSelectedVideo(null)}
