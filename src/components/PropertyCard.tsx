@@ -78,18 +78,12 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                                     <video
                                         src={getMediaUrl(item.url)}
                                         className="h-full w-full object-cover"
-                                        controls={isPlaying === item.id}
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
                                         poster={getMediaUrl(property.media.find(m => m.type === 'image')?.url || '')}
-                                        onPlay={() => setIsPlaying(item.id)}
-                                        onPause={() => setIsPlaying(null)}
                                     />
-                                    {isPlaying !== item.id && (
-                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 pointer-events-none">
-                                            <div className="bg-white/80 p-3 rounded-full backdrop-blur-sm">
-                                                <Play className="w-6 h-6 text-gold-500 fill-gold-500 ml-1" />
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             ) : (
                                 <div onClick={onClick} className="block h-full w-full cursor-pointer relative overflow-hidden">

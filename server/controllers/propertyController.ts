@@ -199,7 +199,7 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
         if (files && files.video && files.video[0]) {
             const videoFile = files.video[0];
             const processedVideoName = await processVideo(videoFile.path, id);
-            videoUpdateSql = ', video_url = $12';
+            videoUpdateSql = ', video_url = $14';
             videoParams.push(`/uploads/${processedVideoName}`);
         }
 
@@ -207,10 +207,11 @@ export const updateProperty = async (req: Request, res: Response): Promise<void>
         const { title_en, description_en } = await translateProperty(title, description);
 
         // Update property details
+        const whereIdIndex = 14 + videoParams.length;
         await client.query(
             `UPDATE properties 
              SET title = $1, title_en = $2, description = $3, description_en = $4, price = $5, type = $6, bathrooms = $7, bedrooms = $8, area_sqm = $9, parking_spots = $10, location = $11, features = $12, status = $13${videoUpdateSql}
-             WHERE id = $${14 + videoParams.length}`,
+             WHERE id = $${whereIdIndex}`,
             [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available', ...videoParams, id]
         );
 
