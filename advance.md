@@ -15,6 +15,18 @@
 - **Corrección de Build en Docker (`pnpm-workspace.yaml` & `Dockerfile`)**:
     - Habilitación de `allowBuilds` para compilación nativa de `sharp` y `esbuild` requerida por pnpm v10+ en el entorno Alpine.
 
+### ⚙️ Reestructuración de System Settings: Users, Backups & Storage
+- **Módulo de Usuarios (`UsersTab.tsx`, `userRoutes.ts`, `userController.ts`)**:
+    - Subsección en Settings para administración completa de cuentas de acceso.
+    - Soporte para creación de nuevos administradores y usuarios estándar, edición de correo, cambio de contraseñas y eliminación protegida (impide autoeliminación y desmantelamiento del último administrador).
+- **Módulo de Backups (`BackupsTab.tsx`, `backupRoutes.ts`, `backupController.ts`)**:
+    - **Exportación Comprimida GZIP (`.sql.gz`)**: Descarga al vuelo en streaming con nombre fechado `backup_autana_YYYY-MM-DD_HH-mm-ss.sql.gz` de todas las tablas (`users`, `properties`, `images`, `bookings`).
+    - **Restaurador Transaccional**: Carga de archivos `.sql.gz` o `.sql` con validación y ejecución atómica (`BEGIN ... COMMIT / ROLLBACK`), protegiendo la base de datos contra volcados corruptos e informando el recuento de filas restauradas.
+- **Módulo de Almacenamiento (`StorageTab.tsx`)**:
+    - Traslado modular de la vista de Media Explorer hacia la pestaña **Storage**, conservando el árbol de carpetas físicas `/uploads/prop_[ID]`, estadísticas de volumen de datos y previsualización de archivos.
+- **Navegación Unificada**:
+    - Redirección automática de la ruta `/admin/users` y del botón de Users en el Sidebar hacia `/admin/settings?tab=users`.
+
 ---
 
 ## Fecha: 26 de Mayo, 2026

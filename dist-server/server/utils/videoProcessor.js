@@ -15,9 +15,10 @@ const isFFmpegAvailable = () => {
     });
 };
 export const processVideo = async (inputPath, propertyId = 'anon') => {
-    const filename = `video-${Date.now()}.webm`;
+    const filename = `video-${Date.now()}.mp4`;
     const propertyDirName = `prop_${propertyId}`;
     const propertyDirPath = path.join(process.cwd(), 'uploads', propertyDirName);
+    console.log(`[VideoProcessor] Starting video processing for property ${propertyId}. Input: ${inputPath}`);
     if (!fs.existsSync(propertyDirPath)) {
         fs.mkdirSync(propertyDirPath, { recursive: true });
     }
@@ -25,32 +26,57 @@ export const processVideo = async (inputPath, propertyId = 'anon') => {
     const relativePath = `${propertyDirName}/${filename}`;
     const available = await isFFmpegAvailable();
     if (!available) {
-        console.warn('FFmpeg not found. Skipping video conversion, just renaming.');
+        console.warn('[VideoProcessor] FFmpeg not found on system. Falling back to simple rename.');
         const fallbackFilename = `video-${Date.now()}${path.extname(inputPath)}`;
         const fallbackPath = path.join(propertyDirPath, fallbackFilename);
         const fallbackRelativePath = `${propertyDirName}/${fallbackFilename}`;
         fs.renameSync(inputPath, fallbackPath);
         return fallbackRelativePath;
     }
-    return new Promise((resolve, reject) => {
+    console.log(`[VideoProcessor] Running FFmpeg (no audio, H.264 fast preset, web-optimized MP4) -> ${outputPath}`);
+    return new Promise((resolve) => {
         ffmpeg(inputPath)
-            .toFormat('webm')
-            .videoCodec('libvpx-vp9')
-            .addOptions(['-crf 30', '-b:v 0']) // Constant Quality mode for VP9
-            .audioCodec('libopus')
+            .toFormat('mp4')
+            .videoCodec('libx264')
+            .noAudio() // Strip all audio for silent autoplay
+            .addOptions([
+            '-preset ultrafast', // Fast compression to avoid VPS timeout
+            '-crf 28', // Efficient web compression
+            '-movflags +faststart', // Starts playing immediately in browser without full download
+            '-pix_fmt yuv420p' // Universal browser compatibility (Safari, Chrome, iOS)
+        ])
+            .on('start', (commandLine) => {
+            console.log(`[VideoProcessor] FFmpeg started with command: ${commandLine}`);
+        })
+            .on('progress', (progress) => {
+            if (progress.percent) {
+                console.log(`[VideoProcessor] FFmpeg Progress: ${Math.round(progress.percent)}%`);
+            }
+        })
             .on('end', () => {
+            console.log(`[VideoProcessor] FFmpeg successfully converted video -> ${relativePath}`);
             // Delete original temp file
-            if (fs.existsSync(inputPath))
-                fs.unlinkSync(inputPath);
+            try {
+                if (fs.existsSync(inputPath))
+                    fs.unlinkSync(inputPath);
+            }
+            catch (delErr) {
+                console.error('[VideoProcessor] Could not delete temp video file:', delErr);
+            }
             resolve(relativePath);
         })
             .on('error', (err) => {
-            console.error('FFmpeg error:', err);
+            console.error('[VideoProcessor] FFmpeg conversion error:', err);
             // Fallback to original if conversion fails
             const fallbackFilename = `video-err-${Date.now()}${path.extname(inputPath)}`;
             const fallbackPath = path.join(propertyDirPath, fallbackFilename);
             const fallbackRelativePath = `${propertyDirName}/${fallbackFilename}`;
-            fs.renameSync(inputPath, fallbackPath);
+            try {
+                fs.renameSync(inputPath, fallbackPath);
+            }
+            catch (renameErr) {
+                console.error('[VideoProcessor] Fallback rename failed:', renameErr);
+            }
             resolve(fallbackRelativePath);
         })
             .save(outputPath);

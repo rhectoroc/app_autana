@@ -14,8 +14,8 @@ export const createProperty = async (req, res) => {
         const { title_en, description_en } = await translateProperty(title, description);
         // 1. Create property first to get ID
         const propResult = await client.query(`INSERT INTO properties (title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm, parking_spots, location, features, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-             RETURNING id`, [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available']);
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13)
+             RETURNING id`, [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures || []), status || 'available']);
         const propertyId = propResult.rows[0].id;
         // 2. Handle Video (now we have propertyId)
         let videoUrl = null;
@@ -165,15 +165,16 @@ export const updateProperty = async (req, res) => {
         if (files && files.video && files.video[0]) {
             const videoFile = files.video[0];
             const processedVideoName = await processVideo(videoFile.path, id);
-            videoUpdateSql = ', video_url = $12';
+            videoUpdateSql = ', video_url = $14';
             videoParams.push(`/uploads/${processedVideoName}`);
         }
         // Auto-translate using DeepSeek
         const { title_en, description_en } = await translateProperty(title, description);
         // Update property details
+        const whereIdIndex = 14 + videoParams.length;
         await client.query(`UPDATE properties 
-             SET title = $1, title_en = $2, description = $3, description_en = $4, price = $5, type = $6, bathrooms = $7, bedrooms = $8, area_sqm = $9, parking_spots = $10, location = $11, features = $12, status = $13${videoUpdateSql}
-             WHERE id = $${14 + videoParams.length}`, [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures), status || 'available', ...videoParams, id]);
+             SET title = $1, title_en = $2, description = $3, description_en = $4, price = $5, type = $6, bathrooms = $7, bedrooms = $8, area_sqm = $9, parking_spots = $10, location = $11, features = $12::jsonb, status = $13${videoUpdateSql}
+             WHERE id = $${whereIdIndex}`, [title, title_en, description, description_en, price, type, bathrooms, bedrooms, area_sqm || 0, parking_spots || 0, location, JSON.stringify(parsedFeatures || []), status || 'available', ...videoParams, id]);
         // Handle Images
         const { mainImageId, existingImages } = req.body;
         const keepIds = existingImages ? JSON.parse(existingImages) : [];

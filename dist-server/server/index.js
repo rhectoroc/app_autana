@@ -9,6 +9,8 @@ import propertyRoutes from './routes/propertyRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import explorerRoutes from './routes/explorerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
+import backupRoutes from './routes/backupRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import { initDB, pool } from './config/db.js';
 dotenv.config();
 const app = express();
@@ -50,6 +52,15 @@ app.use((req, res, next) => {
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     next();
 });
+// Request Logger Middleware
+app.use((req, res, next) => {
+    const start = Date.now();
+    res.on('finish', () => {
+        const duration = Date.now() - start;
+        console.log(`[HTTP] ${req.method} ${req.originalUrl || req.url} -> ${res.statusCode} (${duration}ms)`);
+    });
+    next();
+});
 app.use(express.json());
 // Health Check Endpoint for Easypanel/Docker
 app.get('/health', (req, res) => {
@@ -79,6 +90,8 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/explorer', explorerRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/backup', backupRoutes);
+app.use('/api/users', userRoutes);
 // Serve Static Files (React App)
 const clientBuildPath = path.join(process.cwd(), 'dist');
 if (fs.existsSync(clientBuildPath)) {

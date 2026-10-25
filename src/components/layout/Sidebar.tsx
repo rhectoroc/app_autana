@@ -24,7 +24,7 @@ export const Sidebar = () => {
     const menuItems = [
         { icon: LayoutDashboard, label: 'Overview', path: '/admin/dashboard' },
         { icon: Home, label: 'Properties', path: '/admin/properties' },
-        { icon: Users, label: 'Users', path: '/admin/users' },
+        { icon: Users, label: 'Users', path: '/admin/settings?tab=users' },
         { icon: BarChart3, label: 'Reports', path: '/admin/reports' },
         { icon: Settings, label: 'Settings', path: '/admin/settings' },
     ];

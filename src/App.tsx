@@ -13,7 +13,6 @@ const EditProperty = lazy(() => import('./pages/admin/EditProperty').then(module
 const Settings = lazy(() => import('./pages/admin/Settings').then(module => ({ default: module.Settings })));
 
 // Placeholders for new pages
-const UsersPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">User Management</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
 const ReportsPage = () => <div className="text-white pt-20 text-center"><h1 className="text-4xl font-serif text-[#D4AF37]">Reports & Analytics</h1><p className="text-gray-500 mt-4 underline decoration-[#D4AF37]">Coming Soon...</p></div>;
 
 import { ToastProvider } from './context/ToastContext';
@@ -46,7 +45,7 @@ function App() {
           <Route path="properties" element={<AdminDashboard />} />
           <Route path="create" element={<CreateProperty />} />
           <Route path="edit/:id" element={<EditProperty />} />
-          <Route path="users" element={<UsersPage />} />
+          <Route path="users" element={<Navigate to="/admin/settings?tab=users" replace />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="settings" element={<Settings />} />
         </Route>

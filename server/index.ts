@@ -9,6 +9,8 @@ import propertyRoutes from './routes/propertyRoutes.js';
 import aiRoutes from './routes/aiRoutes.js';
 import explorerRoutes from './routes/explorerRoutes.js';
 import bookingRoutes from './routes/bookingRoutes.js';
+import backupRoutes from './routes/backupRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 import { initDB, pool } from './config/db.js';
 
 
@@ -101,6 +103,8 @@ app.use('/api/properties', propertyRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/explorer', explorerRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/backup', backupRoutes);
+app.use('/api/users', userRoutes);
 
 
 // Serve Static Files (React App)
