@@ -139,11 +139,13 @@ export const CreateProperty = () => {
             const { propertyId } = response.data;
             showToast('Property created successfully!', 'success');
             navigate(`/admin/edit/${propertyId}`);
-        } catch (err) {
+        } catch (err: any) {
             console.error('Upload failed', err);
-            showToast('Failed to create property. Check connection.', 'error');
+            const errMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to create property.';
+            showToast(`Error: ${errMsg}`, 'error');
         } finally {
             setLoading(false);
+            setUploadProgress(0);
         }
     };
 

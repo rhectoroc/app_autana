@@ -219,11 +219,13 @@ export const EditProperty = () => {
             });
             showToast('Property updated successfully!', 'success');
             // User stays on edit page
-        } catch (err) {
+        } catch (err: any) {
             console.error('Update failed', err);
-            showToast('Failed to update property.', 'error');
+            const errMsg = err.response?.data?.error || err.response?.data?.message || err.message || 'Failed to update property.';
+            showToast(`Error: ${errMsg}`, 'error');
         } finally {
             setSubmitting(false);
+            setUploadProgress(0);
         }
     };
 
