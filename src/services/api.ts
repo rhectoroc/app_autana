@@ -12,4 +12,21 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Prevent redirect loop if already on login page
+            const currentPath = window.location.pathname;
+            if (currentPath !== '/login') {
+                localStorage.removeItem('token');
+                sessionStorage.setItem('auth_expired_msg', 'Your session has expired. Please log in again.');
+                window.location.href = '/login';
+            }
+        }
+        return Promise.reject(error);
+    }
+);
+
 export default api;
+

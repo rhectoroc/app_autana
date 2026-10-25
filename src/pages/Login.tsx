@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/useAuthStore';
 import api from '../services/api';
@@ -10,9 +10,18 @@ export const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [notice, setNotice] = useState('');
     const { login } = useAuthStore();
     const navigate = useNavigate();
     const { t } = useTranslation();
+
+    useEffect(() => {
+        const expiredMsg = sessionStorage.getItem('auth_expired_msg');
+        if (expiredMsg) {
+            setNotice(expiredMsg);
+            sessionStorage.removeItem('auth_expired_msg');
+        }
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -79,6 +88,16 @@ export const Login = () => {
                     
                     <div className="relative bg-[#0A0A0A]/80 backdrop-blur-2xl border border-white/10 p-10 rounded-2xl shadow-2xl shadow-black/50">
                         <AnimatePresence mode="wait">
+                            {notice && (
+                                <motion.div 
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] text-xs py-3 px-4 rounded-lg mb-6 text-center overflow-hidden"
+                                >
+                                    {notice}
+                                </motion.div>
+                            )}
                             {error && (
                                 <motion.div 
                                     initial={{ height: 0, opacity: 0 }}
