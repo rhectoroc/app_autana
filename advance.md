@@ -1,6 +1,31 @@
 # Autana Admin & Backend - Registro de Avances
 
-## Fecha: 25 de Octubre, 2026
+## Fecha: 25 de Octubre, 2026 (Sesión de Cierre y Producción)
+
+### 🎬 Optimizador y Compresor de Video en el Cliente (`videoOptimizer.ts`)
+- **Compresión Directa en el Navegador (HTML5 Canvas & MediaRecorder)**:
+  - Diseñado para mitigar caídas de conexión y cuellos de botella por subida de videos masivos de teléfonos móviles (300 MB+).
+  - Escala dinámicamente a dimensiones web estándar (máx 720p/1080p, 30 FPS, ~1.8 Mbps bitrate).
+  - Reduce archivos de más de **310 MB a solo ~8 MB - 30 MB** directamente en la memoria del cliente antes de transmitir un solo byte por la red.
+  - Barra de progreso interactiva dorada en tiempo real (`Optimizing video in browser: X%`) con reporte comparativo de tamaño antes y después.
+  - Integrado de manera transparente en `CreateProperty.tsx` y `EditProperty.tsx`.
+
+### 🛡️ Marca de Agua (Logo Autana Group) y Protección de Descarga
+- **Estampado de Marca de Agua en Video**:
+  - **Cliente (`videoOptimizer.ts`)**: Renderizado del logotipo corporativo oficial (`/logo/autana_watermark.png`) con 75% de opacidad y escala proporcional en la esquina inferior derecha sobre cada fotograma del lienzo (*Canvas*) durante la compresión.
+  - **Servidor (`videoProcessor.ts`)**: Filtro `complexFilter` en FFmpeg (`overlay`) para incrustar de forma indeleble el logo de Autana en cualquier procesamiento en el backend.
+- **Protección Anticopia y Descarga**:
+  - Desactivación de menú contextual y descargas directas en `<video>` mediante `controlsList="nodownload nofullscreen noremoteplayback"`, `disablePictureInPicture` y `onContextMenu={(e) => e.preventDefault()}`.
+  - Capa de cobertura transparente interactiva para evitar menús de guardado al dar click derecho.
+
+### ⚡ Corrección de Compatibilidad de Tipos MIME & Multer
+- **Saneamiento de Parámetros de Códec**:
+  - Normalización en el cliente para emitir Blobs/Files con tipo MIME limpio (`video/mp4` o `video/webm`).
+  - Flexibilización del validador de Multer (`propertyRoutes.ts`) para tolerar extensiones seguras y cadenas MIME con parámetros de códecs adjuntos emitidos por APIs modernas del navegador (evitando el error *"Invalid file type or extension"*).
+
+---
+
+## Fecha: 25 de Octubre, 2026 (Sesión Inicial)
 
 ### 🎥 Optimización de Video y Autoplay en Tarjetas
 - **Pipeline de Video Silencioso y Ligero (`videoProcessor.ts`)**:
