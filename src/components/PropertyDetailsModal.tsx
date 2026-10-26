@@ -145,31 +145,38 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
                                 {/* Thumbnails Gallery (The empty space) */}
                                 <div className="bg-white p-4 border-t border-gray-100 overflow-x-auto scrollbar-hide">
                                     <div className="flex gap-2 min-w-max">
-                                        {property.media.map((item, idx) => (
-                                            <button
-                                                key={item.id || idx}
-                                                onClick={() => swiperInstance?.slideToLoop(idx)}
-                                                className={`relative w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-                                                    activeIndex === idx ? 'border-gold-500 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
-                                                }`}
-                                            >
-                                                <img
-                                                    src={item.type === 'video' 
-                                                        ? property.media.find(m => m.type === 'image')?.url || getMediaUrl(item.url)
-                                                        : getMediaUrl(item.url)
-                                                    }
-                                                    className="w-full h-full object-cover"
-                                                    alt={`Thumb ${idx}`}
-                                                />
-                                                {item.type === 'video' && (
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/30">
-                                                        <div className="w-6 h-6 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                                            <div className="w-0 h-0 border-t-[4px] border-t-transparent border-l-[7px] border-l-white border-b-[4px] border-b-transparent ml-0.5" />
+                                        {property.media.map((item, idx) => {
+                                            const videoPoster = property.media.find(m => m.type === 'image' && m.is_main)?.url || property.media.find(m => m.type === 'image')?.url || '';
+                                            const thumbSrc = item.type === 'video' ? getMediaUrl(videoPoster) : getMediaUrl(item.url);
+
+                                            return (
+                                                <button
+                                                    key={item.id || idx}
+                                                    onClick={() => swiperInstance?.slideToLoop(idx)}
+                                                    className={`relative w-20 h-14 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
+                                                        activeIndex === idx ? 'border-gold-500 scale-105 shadow-lg' : 'border-transparent opacity-60 hover:opacity-100'
+                                                    }`}
+                                                >
+                                                    <img
+                                                        src={thumbSrc || 'https://placehold.co/100x70/1a1a1a/D4AF37?text=Video'}
+                                                        className="w-full h-full object-cover"
+                                                        alt={`Thumb ${idx}`}
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.onerror = null;
+                                                            target.src = 'https://placehold.co/100x70/1a1a1a/D4AF37?text=Video';
+                                                        }}
+                                                    />
+                                                    {item.type === 'video' && (
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                                                            <div className="w-6 h-6 rounded-full bg-gold-500/80 backdrop-blur-sm flex items-center justify-center shadow">
+                                                                <div className="w-0 h-0 border-t-[4px] border-t-transparent border-l-[7px] border-l-black border-b-[4px] border-b-transparent ml-0.5" />
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                )}
-                                            </button>
-                                        ))}
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             </div>
