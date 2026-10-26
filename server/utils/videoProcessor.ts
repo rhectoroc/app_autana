@@ -41,8 +41,23 @@ export const processVideo = async (inputPath: string, propertyId: string | numbe
 
     console.log(`[VideoProcessor] Running FFmpeg (no audio, H.264 fast preset, web-optimized MP4) -> ${outputPath}`);
 
+    const watermarkPath = path.join(process.cwd(), 'public', 'logo', 'autana_watermark.png');
+    const hasWatermark = fs.existsSync(watermarkPath);
+
     return new Promise((resolve) => {
-        ffmpeg(inputPath)
+        let command = ffmpeg(inputPath);
+
+        if (hasWatermark) {
+            // Overlay watermark in bottom-right corner with 20% width and transparency
+            command = command
+                .input(watermarkPath)
+                .complexFilter([
+                    '[1:v]scale=iw*0.22:-1,format=rgba,colorchannelmixer=aa=0.75[wm]',
+                    '[0:v][wm]overlay=W-w-15:H-h-15'
+                ]);
+        }
+
+        command
             .toFormat('mp4')
             .videoCodec('libx264')
             .noAudio() // Strip all audio for silent autoplay

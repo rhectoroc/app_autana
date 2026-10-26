@@ -120,11 +120,24 @@ export const compressVideo = async (
                     resolve(compressedFile);
                 };
 
+                // Preload Autana Watermark logo to burn into frames
+                const watermarkImg = new Image();
+                watermarkImg.src = '/logo/autana_watermark.png';
+                let watermarkLoaded = false;
+                watermarkImg.onload = () => { watermarkLoaded = true; };
+
                 recorder.start(100); // 100ms chunks
 
                 // Draw frames loop
                 video.currentTime = 0;
                 await video.play();
+
+                // Compute proportional watermark size (20% of canvas width)
+                const wmWidth = Math.round(targetWidth * 0.22);
+                const wmHeight = Math.round(wmWidth * 0.35); // Approx aspect ratio of watermark badge
+                const wmPadding = Math.round(targetWidth * 0.025);
+                const wmX = targetWidth - wmWidth - wmPadding;
+                const wmY = targetHeight - wmHeight - wmPadding;
 
                 const renderLoop = () => {
                     if (video.paused || video.ended) {
@@ -134,7 +147,16 @@ export const compressVideo = async (
                         return;
                     }
 
+                    // 1. Draw video frame
                     ctx.drawImage(video, 0, 0, targetWidth, targetHeight);
+
+                    // 2. Draw watermark overlay if loaded
+                    if (watermarkLoaded) {
+                        ctx.save();
+                        ctx.globalAlpha = 0.75; // 75% opacity watermark
+                        ctx.drawImage(watermarkImg, wmX, wmY, wmWidth, (wmWidth * watermarkImg.naturalHeight) / watermarkImg.naturalWidth);
+                        ctx.restore();
+                    }
 
                     if (onProgress) {
                         const percent = Math.min(99, Math.round((video.currentTime / duration) * 100));

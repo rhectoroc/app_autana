@@ -73,15 +73,25 @@ export const PropertyCard: React.FC<PropertyCardProps> = ({ property, onClick })
                     {property.media.map((item, index) => (
                         <SwiperSlide key={item.id || index}>
                             {item.type === 'video' ? (
-                                <div className="relative h-full w-full">
+                                <div className="relative h-full w-full select-none">
                                     <video
                                         src={getMediaUrl(item.url)}
-                                        className="h-full w-full object-cover"
+                                        className="h-full w-full object-cover pointer-events-none"
                                         autoPlay
                                         muted
                                         loop
                                         playsInline
+                                        controls={false}
+                                        controlsList="nodownload nofullscreen noremoteplayback"
+                                        disablePictureInPicture
+                                        onContextMenu={(e) => e.preventDefault()}
                                         poster={getMediaUrl(property.media.find(m => m.type === 'image')?.url || '')}
+                                    />
+                                    {/* Overlay protection to prevent right-click save */}
+                                    <div 
+                                        className="absolute inset-0 z-10" 
+                                        onContextMenu={(e) => e.preventDefault()}
+                                        onClick={onClick}
                                     />
                                 </div>
                             ) : (

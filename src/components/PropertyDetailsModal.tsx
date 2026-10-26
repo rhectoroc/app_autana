@@ -104,6 +104,9 @@ export const PropertyDetailsModal: React.FC<PropertyDetailsModalProps> = ({ prop
                                                     <video
                                                         src={getMediaUrl(item.url)}
                                                         controls
+                                                        controlsList="nodownload nofullscreen noremoteplayback"
+                                                        disablePictureInPicture
+                                                        onContextMenu={(e) => e.preventDefault()}
                                                         className="w-full h-full object-contain"
                                                     />
                                                 ) : (
