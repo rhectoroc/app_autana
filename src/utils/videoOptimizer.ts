@@ -106,15 +106,17 @@ export const compressVideo = async (
 
                 recorder.onstop = () => {
                     URL.revokeObjectURL(objectUrl);
-                    const blob = new Blob(chunks, { type: selectedMime });
+                    // Normalize clean MIME type (without parameters like ;codecs=...)
+                    const cleanMime = isMp4 ? 'video/mp4' : 'video/webm';
+                    const blob = new Blob(chunks, { type: cleanMime });
                     const extension = isMp4 ? '.mp4' : '.webm';
                     const baseName = file.name.replace(/\.[^/.]+$/, '');
                     const compressedFile = new File([blob], `${baseName}_compressed${extension}`, {
-                        type: selectedMime,
+                        type: cleanMime,
                         lastModified: Date.now()
                     });
 
-                    console.log(`[VideoCompressor] Original: ${(file.size / (1024 * 1024)).toFixed(1)}MB -> Compressed: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB`);
+                    console.log(`[VideoCompressor] Original: ${(file.size / (1024 * 1024)).toFixed(1)}MB -> Compressed: ${(compressedFile.size / (1024 * 1024)).toFixed(1)}MB, MIME: ${cleanMime}`);
                     resolve(compressedFile);
                 };
 

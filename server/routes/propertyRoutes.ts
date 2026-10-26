@@ -26,14 +26,18 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage,
     fileFilter: (req, file, cb) => {
-        const isImage = allowedImageTypes.includes(file.mimetype);
-        const isVideo = allowedVideoTypes.includes(file.mimetype);
+        // Strip codec parameters from mimetype, e.g. "video/mp4;codecs=avc1..." -> "video/mp4"
+        const baseMime = (file.mimetype || '').split(';')[0].trim().toLowerCase();
         const ext = path.extname(file.originalname).toLowerCase();
+        
+        const isImage = allowedImageTypes.includes(baseMime) || (['.jpg', '.jpeg', '.png', '.webp', '.heic'].includes(ext) && (!baseMime || baseMime === 'application/octet-stream'));
+        const isVideo = allowedVideoTypes.includes(baseMime) || (['.mp4', '.webm', '.mov'].includes(ext) && (!baseMime || baseMime === 'application/octet-stream' || baseMime.startsWith('video/')));
         const isAllowedExtension = allowedExtensions.includes(ext);
 
         if ((isImage || isVideo) && isAllowedExtension) {
             cb(null, true);
         } else {
+            console.warn(`[Multer] Rejected file: name="${file.originalname}", mimetype="${file.mimetype}", parsedBaseMime="${baseMime}", ext="${ext}"`);
             cb(new Error(`Invalid file type or extension for ${file.originalname}. Only standard images and videos are allowed.`));
         }
     },
