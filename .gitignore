@@ -15,6 +15,9 @@ dist-ssr
 .env
 .env.*
 uploads/
+advance.md
+agent.md
+skills.md
 
 # Editor directories and files
 .vscode/*
